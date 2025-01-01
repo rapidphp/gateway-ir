@@ -1,0 +1,28 @@
+{
+    "name": "rapid/gateway-ir",
+    "description": "Iranian Gateways",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Rapid\\GatewayIR\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Mahdi Saremi",
+            "email": "mahdisarmi00@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "laravel/framework": ">=10.0",
+        "php": "^8.0"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Rapid\\GatewayIR\\GatewayIRServiceProvider"
+            ]
+        }
+    }
+}
