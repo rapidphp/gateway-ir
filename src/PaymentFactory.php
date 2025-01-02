@@ -49,54 +49,44 @@ class PaymentFactory
         return $gateway;
     }
 
-    protected Closure|string $gatewayPrimary = 'primary';
+    protected string $gatewayPrimary = 'primary';
 
-    protected Closure|string $gatewaySecondary = 'secondary';
+    protected string $gatewaySecondary = 'secondary';
 
     public function primary(): ?PaymentGateway
     {
-        if (is_string($this->gatewayPrimary)) {
-            return $this->get($this->gatewayPrimary);
-        }
-
-        $gateway = ($this->gatewayPrimary)();
-
-        if (is_string($gateway)) {
-            return $this->get($gateway);
-        }
-
-        return $gateway;
+        return $this->get($this->gatewayPrimary);
     }
 
     public function setPrimary(string|Closure $name, null|PaymentGateway|Closure $gateway = null): void
     {
+        if ($name instanceof Closure) {
+            $gateway = $name;
+            $name = 'primary';
+        }
+
         $this->gatewayPrimary = $name;
 
-        if (is_string($name) && isset($gateway)) {
+        if (isset($gateway)) {
             $this->define($name, $gateway);
         }
     }
 
     public function secondary(): ?PaymentGateway
     {
-        if (is_string($this->gatewaySecondary)) {
-            return $this->get($this->gatewaySecondary);
-        }
-
-        $gateway = ($this->gatewaySecondary)();
-
-        if (is_string($gateway)) {
-            return $this->get($gateway);
-        }
-
-        return $gateway;
+        return $this->get($this->gatewaySecondary);
     }
 
     public function setSecondary(string|Closure $name, null|PaymentGateway|Closure $gateway = null): void
     {
+        if ($name instanceof Closure) {
+            $gateway = $name;
+            $name = 'secondary';
+        }
+
         $this->gatewayPrimary = $name;
 
-        if (is_string($name) && isset($gateway)) {
+        if (isset($gateway)) {
             $this->define($name, $gateway);
         }
     }
