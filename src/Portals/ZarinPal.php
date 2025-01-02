@@ -19,6 +19,25 @@ use Rapid\GatewayIR\Data\PaymentVerifyResult;
 class ZarinPal extends PaymentGatewayAbstract
 {
 
+    public function __construct(
+        string $key,
+        bool $sandbox = false,
+    )
+    {
+        $this->key = $key;
+        $this->setSandbox($sandbox);
+    }
+
+    public static function make(string $key): static
+    {
+        return new static($key);
+    }
+
+    public static function sandbox(string $key): static
+    {
+        return new static($key, true);
+    }
+
     protected string $baseUrl = 'https://payment.zarinpal.com';
     protected string $sandboxBaseUrl = 'https://sandbox.zarinpal.com';
 

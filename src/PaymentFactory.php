@@ -10,13 +10,12 @@ class PaymentFactory
 
     protected array $gateways = [];
 
-    public function define(string $name, PaymentGateway|Closure $gateway, bool $sandbox = false): void
+    public function define(string $name, PaymentGateway|Closure $gateway): void
     {
+        $gateway->register($name);
+
         if ($gateway instanceof PaymentGateway) {
             $this->gateways[$name] = $gateway;
-            $gateway->register($name, $sandbox);
-        } else {
-            $this->gateways[$name] = [$gateway, $sandbox];
         }
     }
 
@@ -29,8 +28,7 @@ class PaymentFactory
         $gateway = $this->gateways[$name];
 
         if (is_array($gateway)) {
-            [$resolver, $sandbox] = $gateway;
-            $gateway = $resolver();
+            $gateway = $gateway();
 
             if (isset($gateway) && !($gateway instanceof PaymentGateway)) {
                 throw new \TypeError(sprintf(
@@ -42,7 +40,7 @@ class PaymentFactory
             }
 
             if (isset($gateway)) {
-                $gateway->register($name, $sandbox);
+                $gateway->register($name);
             }
 
             $this->gateways[$name] = $gateway;

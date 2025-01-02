@@ -11,26 +11,10 @@ use Rapid\GatewayIR\Enums\TransactionStatuses;
 abstract class PaymentGatewayAbstract implements PaymentGateway
 {
 
-    public bool $isSandbox;
-
-    public function register(string $idName, bool $sandbox)
+    public function register(string $idName)
     {
         $this->idName = $idName;
-        $this->isSandbox = $sandbox;
-
-        if ($sandbox && app()->isProduction()) {
-            throw new \RuntimeException("Sandbox payment gateway is not supported in production environment.");
-        }
     }
-
-    protected string $baseUrl;
-    protected string $sandboxBaseUrl;
-
-    public function endPoint(?string $path = null): string
-    {
-        return ($this->isSandbox ? $this->baseUrl : $this->sandboxBaseUrl ?? $this->baseUrl) . (isset($path) ? '/' . $path : null);
-    }
-
 
     /**
      * Gateway api key
@@ -38,6 +22,24 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
      * @var string
      */
     protected string $key;
+    public bool $isSandbox = false;
+    protected string $baseUrl;
+    protected string $sandboxBaseUrl;
+
+    protected function setSandbox(bool $sandbox): void
+    {
+        $this->isSandbox = $sandbox;
+
+        if ($sandbox && app()->isProduction()) {
+            throw new \RuntimeException("Sandbox payment gateway is not supported in production environment.");
+        }
+    }
+
+    protected function endPoint(?string $path = null): string
+    {
+        return ($this->isSandbox ? $this->baseUrl : $this->sandboxBaseUrl ?? $this->baseUrl) . (isset($path) ? '/' . $path : null);
+    }
+
 
     public string $idName;
 

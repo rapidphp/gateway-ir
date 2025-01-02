@@ -12,7 +12,7 @@ use Rapid\GatewayIR\Exceptions\PaymentVerifyRepeatedException;
 interface PaymentGateway
 {
 
-    public function register(string $idName, bool $sandbox);
+    public function register(string $idName);
 
     public function idName(): string;
 
