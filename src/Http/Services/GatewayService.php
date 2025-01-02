@@ -11,6 +11,7 @@ use Rapid\GatewayIR\Contracts\PaymentHandler;
 use Rapid\GatewayIR\Data\PaymentPrepare;
 use Rapid\GatewayIR\Data\PaymentVerifyResult;
 use Rapid\GatewayIR\Enums\TransactionStatuses;
+use Rapid\GatewayIR\Exceptions\GatewayException;
 use Rapid\GatewayIR\Exceptions\PaymentCancelledException;
 use Rapid\GatewayIR\Exceptions\PaymentFailedException;
 use Rapid\GatewayIR\Exceptions\PaymentVerifyRepeatedException;
@@ -51,7 +52,7 @@ class GatewayService
 
                 $result = $gateway->verify($transaction, $request);
 
-            } catch (PaymentFailedException|PaymentVerifyRepeatedException) {
+            } catch (PaymentFailedException|PaymentVerifyRepeatedException|GatewayException) {
 
                 abort(Response::HTTP_FORBIDDEN);
 
@@ -62,10 +63,6 @@ class GatewayService
                 ]);
 
                 return null;
-
-            } catch (\Throwable $exception) {
-
-                abort(Response::HTTP_FORBIDDEN);
 
             }
 
@@ -133,7 +130,7 @@ class GatewayService
 
         // Check the status
         if ($transaction->status != TransactionStatuses::Pending) {
-            abort(Response::HTTP_GONE);
+            abort(Response::HTTP_UNAUTHORIZED);
         }
 
         return $transaction;
@@ -166,7 +163,7 @@ class GatewayService
             return $handler;
 
         } catch (\Throwable) {
-            abort(Response::HTTP_GONE);
+            abort(Response::HTTP_UNAUTHORIZED);
         }
     }
 
@@ -178,7 +175,7 @@ class GatewayService
      */
     protected function exportGateway(string $idName): PaymentGateway
     {
-        return Payment::get($idName) ?? abort(Response::HTTP_GONE);
+        return Payment::get($idName) ?? abort(Response::HTTP_UNAUTHORIZED);
     }
 
     protected function handleSuccess(?PaymentHandler $handler, PaymentVerifyResult $result)

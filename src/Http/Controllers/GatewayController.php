@@ -10,7 +10,7 @@ class GatewayController
 
     public function accept(string $orderId, Request $request)
     {
-        app(GatewayService::class)->verify($orderId, $request);
+        return app(GatewayService::class)->verify($orderId, $request);
     }
 
 }

@@ -78,7 +78,7 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
             'description' => $description,
             'status' => TransactionStatuses::Pending,
             'handler' => is_string($handler) ? $handler : serialize($handler),
-            'gateway' => static::class,
+            'gateway' => $this->idName(),
             'user_type' => $user?->getMorphClass(),
             'user_id' => $user?->getKey(),
             'model_type' => $model?->getMorphClass(),

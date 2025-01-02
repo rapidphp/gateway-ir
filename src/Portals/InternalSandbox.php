@@ -55,11 +55,10 @@ class InternalSandbox extends PaymentGatewayAbstract
             throw new PaymentCancelledException();
 
         } else {
-            response()
-                ->setContent(<<<HTML
-                Success: <a href="?status=success"></a>
+            response(<<<HTML
+                Success: <a href="?status=success">Click to run success method</a>
                 <br>
-                Cancel: <a href="?status=cancel"></a>
+                Cancel: <a href="?status=cancel">Click to run cancel method</a>
                 HTML)
                 ->throwResponse();
         }
