@@ -49,7 +49,7 @@ class ZarinPal extends PaymentGatewayAbstract
         ?Model                $user = null,
         ?Model                $model = null,
         array                 $meta = [],
-    )
+    ): ZarinPalTransactionInitializeResult
     {
         @[
             'currency' => $currency,
@@ -101,7 +101,7 @@ class ZarinPal extends PaymentGatewayAbstract
         }
     }
 
-    public function verify(Model $transaction, Request $request): PaymentVerifyResult
+    public function verify(Model $transaction, Request $request): ZarinPalPaymentVerifyResult
     {
         if ($request->get('Status') == 'NOK') {
             throw new PaymentCancelledException();

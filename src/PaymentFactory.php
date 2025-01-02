@@ -27,7 +27,7 @@ class PaymentFactory
 
         $gateway = $this->gateways[$name];
 
-        if (is_array($gateway)) {
+        if ($gateway instanceof Closure) {
             $gateway = $gateway();
 
             if (isset($gateway) && !($gateway instanceof PaymentGateway)) {
