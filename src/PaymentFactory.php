@@ -12,10 +12,10 @@ class PaymentFactory
 
     public function define(string $name, PaymentGateway|Closure $gateway): void
     {
-        $gateway->register($name);
+        $this->gateways[$name] = $gateway;
 
         if ($gateway instanceof PaymentGateway) {
-            $this->gateways[$name] = $gateway;
+            $gateway->register($name);
         }
     }
 
