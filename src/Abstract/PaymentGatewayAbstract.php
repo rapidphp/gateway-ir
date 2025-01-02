@@ -11,17 +11,24 @@ use Rapid\GatewayIR\Enums\TransactionStatuses;
 abstract class PaymentGatewayAbstract implements PaymentGateway
 {
 
-    public function register(string $idName)
+    public bool $isSandbox;
+
+    public function register(string $idName, bool $sandbox)
     {
         $this->idName = $idName;
+        $this->isSandbox = $sandbox;
+
+        if ($sandbox && app()->isProduction()) {
+            throw new \RuntimeException("Sandbox payment gateway is not supported in production environment.");
+        }
     }
 
     protected string $baseUrl;
+    protected string $sandboxBaseUrl;
 
-
-    public function endPoint(?string $suffix = null): string
+    public function endPoint(?string $path = null): string
     {
-        return $this->baseUrl . (isset($suffix) ? '/' . $suffix : null);
+        return ($this->isSandbox ? $this->baseUrl : $this->sandboxBaseUrl ?? $this->baseUrl) . (isset($path) ? '/' . $path : null);
     }
 
 
@@ -60,7 +67,7 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
         while ($transModel::where('order_id', $orderId)->exists() && --$tries);
 
         if (!$tries) {
-            throw new \Exception("Failed to generate random order id");
+            throw new \RuntimeException("Failed to generate random order id");
         }
 
         return $transModel::create([

@@ -1,12 +1,16 @@
 <?php
 
-namespace Rapid\GatewayIR\Abstract;
+namespace Rapid\GatewayIR\Data;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 
-abstract class CreationResult extends Data
+class TransactionInitializeResult extends Data
 {
+
+    public ?Model $user;
+
+    public ?Model $model;
 
     public string $url;
 
@@ -14,9 +18,5 @@ abstract class CreationResult extends Data
     {
         return response()->redirectTo($this->url);
     }
-
-    public ?Model $user;
-
-    public ?Model $model;
 
 }

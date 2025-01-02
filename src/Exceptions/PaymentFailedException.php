@@ -2,6 +2,6 @@
 
 namespace Rapid\GatewayIR\Exceptions;
 
-class GatewayProblemException extends \Exception
+class PaymentFailedException extends \Exception
 {
 }

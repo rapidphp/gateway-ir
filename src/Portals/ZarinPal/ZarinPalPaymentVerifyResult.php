@@ -2,9 +2,9 @@
 
 namespace Rapid\GatewayIR\Portals\ZarinPal;
 
-use Rapid\GatewayIR\Abstract\VerifyResult;
+use Rapid\GatewayIR\Data\PaymentVerifyResult;
 
-class ZarinPalVerifyResult extends VerifyResult
+class ZarinPalPaymentVerifyResult extends PaymentVerifyResult
 {
 
     public int $refId;

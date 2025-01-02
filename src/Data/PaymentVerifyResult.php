@@ -1,10 +1,10 @@
 <?php
 
-namespace Rapid\GatewayIR\Abstract;
+namespace Rapid\GatewayIR\Data;
 
 use Illuminate\Database\Eloquent\Model;
 
-abstract class VerifyResult extends Data
+class PaymentVerifyResult extends Data
 {
 
     public int $amount;

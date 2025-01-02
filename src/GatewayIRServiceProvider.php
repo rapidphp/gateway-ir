@@ -10,16 +10,31 @@ class GatewayIRServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerConfig();
-        $this->registerRoutes();
+        $this->registerLang();
+        $this->registerMigrations();
     }
 
     public function registerConfig()
     {
-        $config = __DIR__ . '/../config/gateway-ir.php';
+        $path = __DIR__ . '/../config/gateway-ir.php';
 
-        $this->publishes([$config => base_path('config/gateway-ir.php')], ['gateway-ir']);
+        $this->publishes([$path => base_path('config/gateway-ir.php')], ['gateway-ir']);
 
-        $this->mergeConfigFrom($config, 'gateway-ir');
+        $this->mergeConfigFrom($path, 'gateway-ir');
+    }
+
+    public function registerLang()
+    {
+        $path = __DIR__ . '/../lang';
+
+        $this->publishes([$path => base_path('lang/gateway-ir')], ['gateway-ir']);
+
+        $this->loadTranslationsFrom($path, 'gateway-ir');
+    }
+
+    public function registerMigrations()
+    {
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
     }
 
 }

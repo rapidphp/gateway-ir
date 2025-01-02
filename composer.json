@@ -21,7 +21,8 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Rapid\\GatewayIR\\GatewayIRServiceProvider"
+                "Rapid\\GatewayIR\\GatewayIRServiceProvider",
+                "Rapid\\GatewayIR\\GatewayIRRouteServiceProvider"
             ]
         }
     }

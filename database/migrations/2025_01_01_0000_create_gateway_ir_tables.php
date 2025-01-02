@@ -19,7 +19,7 @@ return new class extends Migration
             $table->enum('status', [
                 TransactionStatuses::Pending,
                 TransactionStatuses::Cancelled,
-                TransactionStatuses::Paid,
+                TransactionStatuses::Success,
             ]);
             $table->text('handler');
             $table->string('gateway');

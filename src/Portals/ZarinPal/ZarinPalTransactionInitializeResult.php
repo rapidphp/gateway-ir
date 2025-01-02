@@ -2,9 +2,9 @@
 
 namespace Rapid\GatewayIR\Portals\ZarinPal;
 
-use Rapid\GatewayIR\Abstract\CreationResult;
+use Rapid\GatewayIR\Data\TransactionInitializeResult;
 
-class ZarinPalCreationResult extends CreationResult
+class ZarinPalTransactionInitializeResult extends TransactionInitializeResult
 {
 
     public string $authority;

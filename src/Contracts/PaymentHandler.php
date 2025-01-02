@@ -3,15 +3,15 @@
 namespace Rapid\GatewayIR\Contracts;
 
 use Illuminate\Database\Eloquent\Model;
-use Rapid\GatewayIR\Abstract\VerifyResult;
+use Rapid\GatewayIR\Data\PaymentFailed;
+use Rapid\GatewayIR\Data\PaymentPrepare;
+use Rapid\GatewayIR\Data\PaymentVerifyResult;
 
 interface PaymentHandler
 {
 
-    public function before(Model $transaction);
+    public function prepare(PaymentPrepare $payment);
 
-    public function success(VerifyResult $data);
-
-    public function cancel(VerifyResult $data);
+    public function success(PaymentVerifyResult $data);
 
 }

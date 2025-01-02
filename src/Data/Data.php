@@ -1,6 +1,6 @@
 <?php
 
-namespace Rapid\GatewayIR\Abstract;
+namespace Rapid\GatewayIR\Data;
 
 use Rapid\GatewayIR\Contracts\PaymentGateway;
 

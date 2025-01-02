@@ -9,8 +9,12 @@ final class TransactionStatuses
 
     public const Cancelled = 'cancelled';
 
-    public const Paid = 'paid';
+    public const Success = 'success';
 
-    public const PaidFailed = 'paid_failed';
+    public const InternalError = 'internal_error';
+
+    public const PendInQueue = 'pend_in_queue';
+
+    public const Reverted = 'reverted';
 
 }
