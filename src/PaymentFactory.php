@@ -10,9 +10,14 @@ class PaymentFactory
 
     protected array $gateways = [];
 
-    public function define(string $name, PaymentGateway|Closure $gateway): void
+    public function define(string $name, PaymentGateway|Closure $gateway, bool $sandbox = false): void
     {
-        $this->gateways[$name] = $gateway;
+        if ($gateway instanceof PaymentGateway) {
+            $this->gateways[$name] = $gateway;
+            $gateway->register($name, $sandbox);
+        } else {
+            $this->gateways[$name] = [$gateway, $sandbox];
+        }
     }
 
     public function get(string $name): ?PaymentGateway
@@ -23,41 +28,77 @@ class PaymentFactory
 
         $gateway = $this->gateways[$name];
 
-        if ($gateway instanceof Closure) {
-            $this->gateways[$name] = $gateway = $gateway();
+        if (is_array($gateway)) {
+            [$resolver, $sandbox] = $gateway;
+            $gateway = $resolver();
+
+            if (isset($gateway) && !($gateway instanceof PaymentGateway)) {
+                throw new \TypeError(sprintf(
+                    "Gateway resolver of [%s] returned [%s], expected [%s]",
+                    $name,
+                    is_object($gateway) ? get_class($gateway) : gettype($gateway),
+                    PaymentGateway::class,
+                ));
+            }
+
+            if (isset($gateway)) {
+                $gateway->register($name, $sandbox);
+            }
+
+            $this->gateways[$name] = $gateway;
         }
 
         return $gateway;
     }
 
-    protected string $gatewayPrimary = 'primary';
+    protected Closure|string $gatewayPrimary = 'primary';
 
-    protected string $gatewaySecondary = 'secondary';
+    protected Closure|string $gatewaySecondary = 'secondary';
 
     public function primary(): ?PaymentGateway
     {
-        return $this->get($this->gatewayPrimary);
+        if (is_string($this->gatewayPrimary)) {
+            return $this->get($this->gatewayPrimary);
+        }
+
+        $gateway = ($this->gatewayPrimary)();
+
+        if (is_string($gateway)) {
+            return $this->get($gateway);
+        }
+
+        return $gateway;
     }
 
-    public function setPrimary(string $name, null|PaymentGateway|Closure $gateway = null): void
+    public function setPrimary(string|Closure $name, null|PaymentGateway|Closure $gateway = null): void
     {
         $this->gatewayPrimary = $name;
 
-        if (isset($gateway)) {
+        if (is_string($name) && isset($gateway)) {
             $this->define($name, $gateway);
         }
     }
 
     public function secondary(): ?PaymentGateway
     {
-        return $this->get($this->gatewaySecondary);
+        if (is_string($this->gatewaySecondary)) {
+            return $this->get($this->gatewaySecondary);
+        }
+
+        $gateway = ($this->gatewaySecondary)();
+
+        if (is_string($gateway)) {
+            return $this->get($gateway);
+        }
+
+        return $gateway;
     }
 
-    public function setSecondary(string $name, null|PaymentGateway|Closure $gateway = null): void
+    public function setSecondary(string|Closure $name, null|PaymentGateway|Closure $gateway = null): void
     {
         $this->gatewayPrimary = $name;
 
-        if (isset($gateway)) {
+        if (is_string($name) && isset($gateway)) {
             $this->define($name, $gateway);
         }
     }

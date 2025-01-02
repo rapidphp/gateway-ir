@@ -14,8 +14,8 @@ use Rapid\GatewayIR\Enums\TransactionStatuses;
 use Rapid\GatewayIR\Exceptions\PaymentCancelledException;
 use Rapid\GatewayIR\Exceptions\PaymentFailedException;
 use Rapid\GatewayIR\Exceptions\PaymentVerifyRepeatedException;
-use Rapid\GatewayIR\Gateway;
 use Rapid\GatewayIR\Jobs\TransactionDone;
+use Rapid\GatewayIR\Payment;
 use Symfony\Component\HttpFoundation\Response;
 
 class GatewayService
@@ -178,7 +178,7 @@ class GatewayService
      */
     protected function exportGateway(string $idName): PaymentGateway
     {
-        return Gateway::get($idName) ?? abort(Response::HTTP_GONE);
+        return Payment::get($idName) ?? abort(Response::HTTP_GONE);
     }
 
     protected function handleSuccess(?PaymentHandler $handler, PaymentVerifyResult $result)
