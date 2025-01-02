@@ -37,7 +37,7 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
 
     protected function endPoint(?string $path = null): string
     {
-        return ($this->isSandbox ? $this->baseUrl : $this->sandboxBaseUrl ?? $this->baseUrl) . (isset($path) ? '/' . $path : null);
+        return ($this->isSandbox ? $this->sandboxBaseUrl ?? $this->baseUrl : $this->baseUrl) . (isset($path) ? '/' . $path : null);
     }
 
 
@@ -95,8 +95,7 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
     {
         return config('gateway-ir.routes.enabled') ?
             route(config('gateway-ir.routes.name'), [
-                'hash' => $transaction->random_hash,
-                'id' => $transaction->order_id,
+                'order_id' => $transaction->order_id,
             ]) :
             null;
     }

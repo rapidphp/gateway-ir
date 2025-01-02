@@ -7,10 +7,10 @@ use Rapid\GatewayIR\Exceptions\GatewayException;
 class ZarinPalGatewayException extends GatewayException
 {
 
-    public function __construct(int $code = 0, ?\Throwable $previous = null)
+    public function __construct(int $code, ?string $message = null, ?\Throwable $previous = null)
     {
         $this->code = $code;
-        parent::__construct($this->translate('en'), $code, $previous);
+        parent::__construct($message ?? $this->translate('en'), $code, $previous);
     }
 
     public function translate(?string $locale = null): string

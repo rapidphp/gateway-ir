@@ -62,7 +62,6 @@ class ZarinPal extends PaymentGatewayAbstract
         try {
             $response = Http::asJson()
                 ->acceptJson()
-                ->throw()
                 ->post($this->endPoint("pg/v4/payment/request.json"), array_filter([
                     'merchant_id' => $this->key,
                     'amount' => $amount,
@@ -76,11 +75,8 @@ class ZarinPal extends PaymentGatewayAbstract
                     ]),
                 ]));
 
-            /** @var int $code */
-            $code = $response->json('data.code');
-
-            if ($code != 100) {
-                throw new ZarinPalGatewayException($code);
+            if ($code = $response->json('errors.code')) {
+                throw new ZarinPalGatewayException($code, $response->json('errors.message'));
             }
 
             $result = new ZarinPalTransactionInitializeResult($this);
@@ -94,7 +90,7 @@ class ZarinPal extends PaymentGatewayAbstract
 
             $result->url = $this->endPoint('pg/StartPay/' . $result->authority);
 
-            return new ZarinPalTransactionInitializeResult($this);
+            return $result;
         } catch (\Throwable $e) {
             $transaction->delete();
             throw $e;
@@ -111,22 +107,18 @@ class ZarinPal extends PaymentGatewayAbstract
 
         $response = Http::asJson()
             ->acceptJson()
-            ->throw()
             ->post($this->endPoint("pg/v4/payment/verify.json"), array_filter([
                 'merchant_id' => $this->key,
                 'amount' => $transaction->amount,
                 'authority' => $request->get('Authority'),
             ]));
 
-        /** @var int $code */
-        $code = $response->json('data.code');
-
-        if ($code != 100) {
-            $exception = new ZarinPalGatewayException($code);
+        if ($code = $response->json('errors.code')) {
+            $exception = new ZarinPalGatewayException($code, $response->json('errors.message'));
 
             match ($code) {
-                -50, -51, -53, -55 => throw new PaymentFailedException($exception->translate('en'), $code, $exception),
-                101                => throw new PaymentVerifyRepeatedException($exception->translate('en'), $code, $exception),
+                -50, -51, -53, -55 => throw new PaymentFailedException($exception->getMessage(), $code, $exception),
+                101                => throw new PaymentVerifyRepeatedException($exception->getMessage(), $code, $exception),
                 default            => throw $exception,
             };
         }

@@ -17,8 +17,6 @@ interface PaymentGateway
 
     public function idName(): string;
 
-    public function endPoint(?string $path = null): string;
-
     public function request(
         int                   $amount,
         string                $description,
