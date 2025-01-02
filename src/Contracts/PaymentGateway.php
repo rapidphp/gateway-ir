@@ -18,6 +18,15 @@ interface PaymentGateway
 
     public function endPoint(?string $path = null): string;
 
+    public function request(
+        int                   $amount,
+        string                $description,
+        string|PaymentHandler $handler,
+        ?Model                $user = null,
+        ?Model                $model = null,
+        array                 $meta = [],
+    );
+
     public function verify(Model $transaction, Request $request): PaymentVerifyResult;
 
 }

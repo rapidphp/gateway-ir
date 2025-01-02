@@ -5,6 +5,7 @@ namespace Rapid\GatewayIR\Portals;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Rapid\GatewayIR\Abstract\PaymentGatewayAbstract;
 use Rapid\GatewayIR\Contracts\PaymentHandler;
 use Rapid\GatewayIR\Exceptions\GatewayException;
@@ -33,9 +34,9 @@ class ZarinPal extends PaymentGatewayAbstract
         return new static($key);
     }
 
-    public static function sandbox(string $key): static
+    public static function sandbox(?string $key = null): static
     {
-        return new static($key, true);
+        return new static($key ?? Str::uuid(), true);
     }
 
     protected string $baseUrl = 'https://payment.zarinpal.com';
