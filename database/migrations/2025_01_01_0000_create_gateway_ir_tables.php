@@ -20,6 +20,9 @@ return new class extends Migration
                 TransactionStatuses::Pending,
                 TransactionStatuses::Cancelled,
                 TransactionStatuses::Success,
+                TransactionStatuses::InternalError,
+                TransactionStatuses::PendInQueue,
+                TransactionStatuses::Reverted,
             ]);
             $table->text('handler');
             $table->string('gateway');

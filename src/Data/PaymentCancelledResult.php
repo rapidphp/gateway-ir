@@ -2,7 +2,7 @@
 
 namespace Rapid\GatewayIR\Data;
 
-class PaymentCancelledResult
+class PaymentCancelledResult extends Data
 {
 
 }

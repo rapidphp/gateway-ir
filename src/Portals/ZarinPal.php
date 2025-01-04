@@ -39,8 +39,8 @@ class ZarinPal extends PaymentGatewayAbstract
         return new static($key ?? Str::uuid(), true);
     }
 
-    protected string $baseUrl = 'https://payment.zarinpal.com';
-    protected string $sandboxBaseUrl = 'https://sandbox.zarinpal.com';
+    protected const BASE_URL = 'https://payment.zarinpal.com';
+    protected const SANDBOX_BASE_URL = 'https://sandbox.zarinpal.com';
 
     public function request(
         int                   $amount,

@@ -11,7 +11,7 @@ use Rapid\GatewayIR\Enums\TransactionStatuses;
 abstract class PaymentGatewayAbstract implements PaymentGateway
 {
 
-    public function register(string $idName)
+    public function register(string $idName): void
     {
         $this->idName = $idName;
     }
@@ -23,8 +23,8 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
      */
     protected string $key;
     public bool $isSandbox = false;
-    protected string $baseUrl;
-    protected string $sandboxBaseUrl;
+    protected const BASE_URL = '';
+    protected const SANDBOX_BASE_URL = '';
 
     protected function setSandbox(bool $sandbox): void
     {
@@ -37,7 +37,7 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
 
     protected function endPoint(?string $path = null): string
     {
-        return ($this->isSandbox ? $this->sandboxBaseUrl ?? $this->baseUrl : $this->baseUrl) . (isset($path) ? '/' . $path : null);
+        return ($this->isSandbox ? static::SANDBOX_BASE_URL ?: static::BASE_URL : static::BASE_URL) . (isset($path) ? '/' . $path : null);
     }
 
 
