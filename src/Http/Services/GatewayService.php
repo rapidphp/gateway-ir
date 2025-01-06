@@ -19,11 +19,36 @@ use Rapid\GatewayIR\Jobs\TransactionDone;
 use Rapid\GatewayIR\Payment;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Class GatewayService
+ *
+ * Provides services for handling payment transactions, including verification and retrying
+ * of transactions. This class manages the transaction lifecycle, including handling success,
+ * failure, and cancellation scenarios. It interacts with payment handlers and gateways to
+ * facilitate payment processing.
+ */
 class GatewayService
 {
-
+    /**
+     * Indicates whether to force commit the database transaction.
+     *
+     * @var bool
+     */
     public bool $forceCommit;
 
+    /**
+     * Verifies a payment transaction based on the provided order ID and request.
+     *
+     * This method initiates a database transaction, retrieves the pending transaction,
+     * prepares the verification, and processes the result. It handles various exceptions
+     * that may occur during the verification process and updates the transaction status
+     * accordingly.
+     *
+     * @param string $orderId The ID of the order to verify.
+     * @param Request $request The HTTP request containing verification data.
+     * @return mixed The response from the payment handler or null if cancelled.
+     * @throws \Throwable If an error occurs during the verification process.
+     */
     public function verify(string $orderId, Request $request)
     {
         $response = null;
@@ -40,8 +65,6 @@ class GatewayService
             if ($handler) {
                 $prepare = new PaymentPrepare($gateway);
                 $prepare->amount = $transaction->amount;
-                $prepare->model = $transaction->model;
-                $prepare->user = $transaction->user;
 
                 if ($response = $handler->prepare($prepare)) {
                     return $response;
@@ -104,6 +127,16 @@ class GatewayService
         return $response;
     }
 
+    /**
+     * Retries the success handling of a payment transaction.
+     *
+     * This method invokes the success method of the payment handler with the provided
+     * transaction and verification result.
+     *
+     * @param Model $transaction The transaction model to retry.
+     * @param PaymentVerifyResult $result The result of the payment verification.
+     * @return void
+     */
     public function retry(Model $transaction, PaymentVerifyResult $result)
     {
         $handler = $this->exportHandler($transaction->handler);
@@ -178,6 +211,18 @@ class GatewayService
         return Payment::get($idName) ?? abort(Response::HTTP_UNAUTHORIZED);
     }
 
+     /**
+     * Handles the success response from the payment handler.
+     *
+     * This method invokes the success method of the provided payment handler with
+     * the given verification result. It allows for custom handling of successful
+     * payment verifications, delegating the response processing to the specific
+     * payment handler implementation.
+     *
+     * @param PaymentHandler|null $handler The payment handler to use for processing the success response.
+     * @param PaymentVerifyResult $result The result of the payment verification.
+     * @return mixed The response from the payment handler's success method, or null if the handler is not provided.
+     */
     protected function handleSuccess(?PaymentHandler $handler, PaymentVerifyResult $result)
     {
         return $handler?->success($result);

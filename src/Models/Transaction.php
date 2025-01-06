@@ -20,31 +20,7 @@ class Transaction extends Model
         'description',
         'status',
         'handler',
-        'gateway',
-        'user_type',
-        'user_id',
-        'model_type',
-        'model_id',
+        'gateway'
     ];
-
-    public function user()
-    {
-        return $this->morphTo();
-    }
-
-    public function model()
-    {
-        return $this->morphTo();
-    }
-
-    public static function forUser(Builder $query, Model $user)
-    {
-        $query->whereMorphedTo('user', $user);
-    }
-
-    public static function forModel(Builder $query, Model $model)
-    {
-        $query->whereMorphedTo('model', $model);
-    }
 
 }
