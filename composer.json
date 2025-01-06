@@ -5,7 +5,10 @@
     "autoload": {
         "psr-4": {
             "Rapid\\GatewayIR\\": "src/"
-        }
+        },
+        "files": [
+            "helpers/functions.php"
+        ]
     },
     "authors": [
         {
