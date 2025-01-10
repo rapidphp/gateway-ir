@@ -4,14 +4,6 @@ namespace Rapid\GatewayIR\Portals\ZarinPal;
 
 use Rapid\GatewayIR\Data\TransactionInitializeResult;
 
-/**
- * Class ZarinPalTransactionInitializeResult
- *
- * This class extends the TransactionInitializeResult to represent the result
- * of a transaction initialization specifically for the ZarinPal payment gateway.
- * It includes additional properties related to the ZarinPal transaction, such as
- * the authority code and any applicable fees.
- */
 class ZarinPalTransactionInitializeResult extends TransactionInitializeResult
 {
     /**

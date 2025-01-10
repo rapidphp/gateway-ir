@@ -4,14 +4,9 @@ namespace Rapid\GatewayIR\Data;
 
 use Illuminate\Http\RedirectResponse;
 
-/**
- * Class TransactionInitializeResult
- *
- * This class represents the result of a transaction initialization process.
- * It contains the URLs for redirecting the user after a transaction is initialized.
- */
 class TransactionInitializeResult extends Data
 {
+
     /**
      * The URL to redirect to after transaction initialization.
      *
@@ -20,15 +15,13 @@ class TransactionInitializeResult extends Data
     public string $url;
 
     /**
-     * Redirects the user to the specified main URL.
+     * Redirects the user to the specified gateway URL.
      *
-     * This method generates a RedirectResponse that will redirect the user
-     * to the URL stored in the `url` property.
-     *
-     * @return RedirectResponse The response that performs the redirection.
+     * @return RedirectResponse
      */
     public function redirect(): RedirectResponse
     {
         return response()->redirectTo($this->url);
     }
+
 }

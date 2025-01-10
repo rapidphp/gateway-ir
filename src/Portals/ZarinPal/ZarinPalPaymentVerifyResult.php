@@ -4,37 +4,40 @@ namespace Rapid\GatewayIR\Portals\ZarinPal;
 
 use Rapid\GatewayIR\Data\PaymentVerifyResult;
 
-/**
- * Class ZarinPalPaymentVerifyResult
- *
- * Represents the result of a payment verification from the ZarinPal payment gateway.
- * This class extends the PaymentVerifyResult class and includes additional properties
- * specific to the ZarinPal payment verification response.
- */
 class ZarinPalPaymentVerifyResult extends PaymentVerifyResult
 {
     /**
-     * @var int The reference ID of the transaction.
+     * The reference ID of the transaction.
+     *
+     * @var int
      */
     public int $refId;
 
     /**
-     * @var string The card number (PAN) used for the transaction, masked for security.
+     * The card number (PAN) used for the transaction, masked for security.
+     *
+     * @var string
      */
     public string $cardPan;
 
     /**
-     * @var string A hash of the card information for verification purposes.
+     * A hash of the card information for verification purposes.
+     *
+     * @var string
      */
     public string $cardHash;
 
     /**
-     * @var string|null The type of fee applied to the transaction, if any.
+     * The type of fee applied to the transaction, if any.
+     *
+     * @var string|null
      */
     public ?string $feeType;
 
     /**
-     * @var int|null The amount of the fee applied to the transaction, if any.
+     * The amount of the fee applied to the transaction, if any.
+     *
+     * @var int|null
      */
     public ?int $fee;
 }

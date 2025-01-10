@@ -20,7 +20,7 @@ class Transaction extends Model
         'description',
         'status',
         'handler',
-        'gateway'
+        'gateway',
     ];
 
 }

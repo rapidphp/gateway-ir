@@ -4,26 +4,10 @@ namespace Rapid\GatewayIR;
 
 use Illuminate\Support\ServiceProvider;
 
-/**
- * Service provider for managing configuration, language, and migrations.
- *
- * This class is responsible for registering various components such as
- * configuration files, language translations, and database migrations
- * within the application. It extends the base ServiceProvider and
- * provides methods to handle the registration of these components.
- */
 class GatewayIRServiceProvider extends ServiceProvider
 {
-    /**
-     * Register the service provider's services.
-     *
-     * This method is called to register the services provided by the
-     * service provider. It includes the registration of configuration,
-     * language translations, and migrations.
-     *
-     * @return void
-     */
-    public function register()
+
+    public function register(): void
     {
         $this->registerConfig();
         $this->registerLang();
@@ -33,12 +17,9 @@ class GatewayIRServiceProvider extends ServiceProvider
     /**
      * Register the configuration file.
      *
-     * This method publishes the configuration file to the application's
-     * config directory and merges it with the existing configuration.
-     *
      * @return void
      */
-    public function registerConfig()
+    public function registerConfig(): void
     {
         $path = __DIR__ . '/../config/gateway-ir.php';
 
@@ -50,12 +31,9 @@ class GatewayIRServiceProvider extends ServiceProvider
     /**
      * Register the language translations.
      *
-     * This method publishes the language files to the application's
-     * language directory and loads the translations for the application.
-     *
      * @return void
      */
-    public function registerLang()
+    public function registerLang(): void
     {
         $path = __DIR__ . '/../lang';
 
@@ -67,13 +45,11 @@ class GatewayIRServiceProvider extends ServiceProvider
     /**
      * Register the database migrations.
      *
-     * This method loads the database migrations from the specified
-     * directory, making them available for the application.
-     *
      * @return void
      */
-    public function registerMigrations()
+    public function registerMigrations(): void
     {
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
     }
+
 }
