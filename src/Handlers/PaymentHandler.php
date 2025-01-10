@@ -3,6 +3,7 @@
 namespace Rapid\GatewayIR\Handlers;
 
 use Illuminate\Queue\SerializesModels;
+use Laravel\SerializableClosure\SerializableClosure;
 use Rapid\GatewayIR\Data\PaymentPrepare;
 use Rapid\GatewayIR\Data\PaymentVerifyResult;
 

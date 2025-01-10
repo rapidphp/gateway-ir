@@ -1,6 +1,6 @@
 <?php
 
-namespace Rapid\GatewayIR\Abstract;
+namespace Rapid\GatewayIR\Payment;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -155,6 +155,16 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
         return route(config('gateway-ir.routes.name'), [
             'order_id' => $transaction->order_id,
         ]);
+    }
+
+    /**
+     * Prepares a new pending payment request.
+     *
+     * @return PendingRequest
+     */
+    public function prepare(): PendingRequest
+    {
+        return new PendingRequest($this);
     }
 
 }

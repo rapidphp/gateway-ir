@@ -4,7 +4,7 @@ namespace Rapid\GatewayIR\Portals;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use Rapid\GatewayIR\Abstract\PaymentGatewayAbstract;
+use Rapid\GatewayIR\Payment\PaymentGatewayAbstract;
 use Rapid\GatewayIR\Data\PaymentVerifyResult;
 use Rapid\GatewayIR\Data\TransactionInitializeResult;
 use Rapid\GatewayIR\Exceptions\PaymentCancelledException;

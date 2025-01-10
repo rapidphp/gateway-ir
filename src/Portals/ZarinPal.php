@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-use Rapid\GatewayIR\Abstract\PaymentGatewayAbstract;
+use Rapid\GatewayIR\Payment\PaymentGatewayAbstract;
 use Rapid\GatewayIR\Exceptions\PaymentCancelledException;
 use Rapid\GatewayIR\Exceptions\PaymentFailedException;
 use Rapid\GatewayIR\Exceptions\PaymentVerifyRepeatedException;
