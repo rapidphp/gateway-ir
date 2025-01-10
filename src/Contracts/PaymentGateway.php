@@ -2,10 +2,11 @@
 
 namespace Rapid\GatewayIR\Contracts;
 
-use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Rapid\GatewayIR\Data\PaymentVerifyResult;
 use Rapid\GatewayIR\Data\TransactionInitializeResult;
+use Rapid\GatewayIR\Handlers\PaymentHandler;
 
 /**
  * Interface for payment gateway implementations.
