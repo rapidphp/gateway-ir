@@ -3,13 +3,12 @@
 return [
 
     'routes' => [
-        'enabled' => true,
         'prefix' => '/payment',
-        'name' => 'gateway-ir.result',
+        'name' => 'gateway.result',
         'throttle' => '4,1',
     ],
 
-    'table' => [
+    'database' => [
         'model' => \Rapid\GatewayIR\Models\Transaction::class,
         'table' => 'gateway_transactions',
     ],

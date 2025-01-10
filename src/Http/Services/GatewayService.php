@@ -21,9 +21,20 @@ use Symfony\Component\HttpFoundation\Response;
 
 class GatewayService
 {
-
+    /**
+     * Indicates whether to force commit the database transaction.
+     *
+     * @var bool
+     */
     public bool $forceCommit;
 
+    /**
+     * Verifies a payment transaction based on the provided order ID and request.
+     *
+     * @param string $orderId
+     * @param Request $request
+     * @return mixed
+     */
     public function verify(string $orderId, Request $request)
     {
         $response = null;
@@ -40,8 +51,6 @@ class GatewayService
             if ($handler) {
                 $prepare = new PaymentPrepare($gateway);
                 $prepare->amount = $transaction->amount;
-                $prepare->model = $transaction->model;
-                $prepare->user = $transaction->user;
 
                 if ($response = $handler->prepare($prepare)) {
                     return $response;
@@ -104,6 +113,13 @@ class GatewayService
         return $response;
     }
 
+    /**
+     * Retries the success handling of a payment transaction.
+     *
+     * @param Model $transaction
+     * @param PaymentVerifyResult $result
+     * @return void
+     */
     public function retry(Model $transaction, PaymentVerifyResult $result)
     {
         $handler = $this->exportHandler($transaction->handler);
@@ -178,6 +194,13 @@ class GatewayService
         return Payment::get($idName) ?? abort(Response::HTTP_UNAUTHORIZED);
     }
 
+     /**
+     * Handles the success response from the payment handler.
+     *
+     * @param PaymentHandler|null $handler
+     * @param PaymentVerifyResult $result
+     * @return mixed
+     */
     protected function handleSuccess(?PaymentHandler $handler, PaymentVerifyResult $result)
     {
         return $handler?->success($result);

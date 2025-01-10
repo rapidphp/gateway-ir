@@ -8,46 +8,54 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Rapid\GatewayIR\Abstract\PaymentGatewayAbstract;
 use Rapid\GatewayIR\Contracts\PaymentHandler;
-use Rapid\GatewayIR\Exceptions\GatewayException;
 use Rapid\GatewayIR\Exceptions\PaymentCancelledException;
 use Rapid\GatewayIR\Exceptions\PaymentFailedException;
 use Rapid\GatewayIR\Exceptions\PaymentVerifyRepeatedException;
 use Rapid\GatewayIR\Portals\ZarinPal\ZarinPalGatewayException;
 use Rapid\GatewayIR\Portals\ZarinPal\ZarinPalPaymentVerifyResult;
 use Rapid\GatewayIR\Portals\ZarinPal\ZarinPalTransactionInitializeResult;
-use Rapid\GatewayIR\Data\PaymentVerifyResult;
 
 class ZarinPal extends PaymentGatewayAbstract
 {
 
-    public function __construct(
-        string $key,
-        bool $sandbox = false,
-    )
+    protected const BASE_URL = 'https://payment.zarinpal.com';
+    protected const SANDBOX_BASE_URL = 'https://sandbox.zarinpal.com';
+
+    public function __construct(string $key, bool $sandbox = false)
     {
         $this->key = $key;
         $this->setSandbox($sandbox);
     }
 
+    /**
+     * Creates a new instance of the ZarinPal gateway.
+     *
+     * @param string $key
+     * @return static
+     */
     public static function make(string $key): static
     {
         return new static($key);
     }
 
+    /**
+     * Creates a new instance of the ZarinPal gateway in sandbox mode.
+     *
+     * @param string|null $key
+     * @return static
+     */
     public static function sandbox(?string $key = null): static
     {
         return new static($key ?? Str::uuid(), true);
     }
 
-    protected const BASE_URL = 'https://payment.zarinpal.com';
-    protected const SANDBOX_BASE_URL = 'https://sandbox.zarinpal.com';
-
+    /**
+     * @inheritDoc
+     */
     public function request(
         int                   $amount,
         string                $description,
         string|PaymentHandler $handler,
-        ?Model                $user = null,
-        ?Model                $model = null,
         array                 $meta = [],
     ): ZarinPalTransactionInitializeResult
     {
@@ -57,7 +65,7 @@ class ZarinPal extends PaymentGatewayAbstract
             'email' => $email,
         ] = $meta;
 
-        $transaction = $this->createNewRecord($amount, $description, $handler, $user, $model);
+        $transaction = $this->createNewRecord($amount, $description, $handler);
 
         try {
             $response = Http::asJson()
@@ -97,6 +105,9 @@ class ZarinPal extends PaymentGatewayAbstract
         }
     }
 
+    /**
+     * @inheritDoc
+     */
     public function verify(Model $transaction, Request $request): ZarinPalPaymentVerifyResult
     {
         if ($request->get('Status') == 'NOK') {
@@ -125,8 +136,6 @@ class ZarinPal extends PaymentGatewayAbstract
 
         $result = new ZarinPalPaymentVerifyResult($this);
         $result->amount = $transaction->amount;
-        $result->user = $transaction->user;
-        $result->model = $transaction->model;
 
         @[
             'ref_id' => $result->refId,
@@ -138,5 +147,4 @@ class ZarinPal extends PaymentGatewayAbstract
 
         return $result;
     }
-
 }

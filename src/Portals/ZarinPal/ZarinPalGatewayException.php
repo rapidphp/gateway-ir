@@ -13,6 +13,12 @@ class ZarinPalGatewayException extends GatewayException
         parent::__construct($message ?? $this->translate('en'), $code, $previous);
     }
 
+    /**
+     * Translates the error code into a user-friendly message.
+     *
+     * @param string|null $locale
+     * @return string
+     */
     public function translate(?string $locale = null): string
     {
         $key = "gateway-ir::zarinpal.codes.{$this->code}";
@@ -23,10 +29,10 @@ class ZarinPalGatewayException extends GatewayException
         }
 
         if ($this->code > 0) {
-            return trans("gateway-ir::zarinpal.codes.unknown_code", locale: $locale);
+            return trans('gateway-ir::zarinpal.codes.unknown_code', locale: $locale);
         }
 
-        return trans("gateway-ir::zarinpal.codes.unknown", locale: $locale);
+        return trans('gateway-ir::zarinpal.codes.unknown', locale: $locale);
     }
 
 }

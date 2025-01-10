@@ -8,9 +8,9 @@ use Rapid\GatewayIR\Enums\TransactionStatuses;
 return new class extends Migration
 {
 
-    public function up()
+    public function up(): void
     {
-        Schema::create(config('gateway-ir.table.table'), function (Blueprint $table) {
+        Schema::create(config('gateway-ir.database.table'), function (Blueprint $table) {
             $table->id();
             $table->string('order_id')->unique();
             $table->string('authority')->nullable();
@@ -26,15 +26,13 @@ return new class extends Migration
             ]);
             $table->text('handler');
             $table->string('gateway');
-            $table->nullableMorphs('user');
-            $table->nullableMorphs('model');
             $table->timestamps();
         });
     }
 
-    public function down()
+    public function down(): void
     {
-        Schema::drop(config('gateway-ir.table.table'));
+        Schema::drop(config('gateway-ir.database.table'));
     }
 
 };

@@ -2,74 +2,126 @@
 
 namespace Rapid\GatewayIR\Abstract;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Model;
 use Rapid\GatewayIR\Contracts\PaymentGateway;
 use Rapid\GatewayIR\Contracts\PaymentHandler;
 use Rapid\GatewayIR\Enums\TransactionStatuses;
 
+/**
+ * Abstract class representing a payment gateway.
+ *
+ * This class serves as a base implementation for specific payment gateway
+ * integrations.
+ */
 abstract class PaymentGatewayAbstract implements PaymentGateway
 {
 
+    protected const BASE_URL = '';
+    protected const SANDBOX_BASE_URL = '';
+
+    /**
+     * Gateway API key.
+     *
+     * @var string
+     */
+    protected string $key;
+
+    /**
+     * Indicates whether the gateway is in sandbox mode.
+     *
+     * @var bool
+     */
+    public bool $isSandbox = false;
+
+    /**
+     * The identifier name for the payment gateway.
+     *
+     * @var string
+     */
+    public string $idName;
+
+    /**
+     * Registers the payment gateway with a given ID name.
+     *
+     * @param string $idName
+     * @return void
+     */
     public function register(string $idName): void
     {
         $this->idName = $idName;
     }
 
     /**
-     * Gateway api key
+     * Sets the sandbox mode for the payment gateway.
      *
-     * @var string
+     * @param bool $sandbox
+     * @return void
      */
-    protected string $key;
-    public bool $isSandbox = false;
-    protected const BASE_URL = '';
-    protected const SANDBOX_BASE_URL = '';
-
     protected function setSandbox(bool $sandbox): void
     {
-        $this->isSandbox = $sandbox;
-
         if ($sandbox && app()->isProduction()) {
-            throw new \RuntimeException("Sandbox payment gateway is not supported in production environment.");
+            throw new \RuntimeException('Sandbox payment gateway is not supported in production environment.');
         }
+
+        $this->isSandbox = $sandbox;
     }
 
+    /**
+     * Constructs the endpoint URL for the payment gateway.
+     *
+     * @param string|null $path
+     * @return string
+     */
     protected function endPoint(?string $path = null): string
     {
-        return ($this->isSandbox ? static::SANDBOX_BASE_URL ?: static::BASE_URL : static::BASE_URL) . (isset($path) ? '/' . $path : null);
+        $baseUrl = $this->isSandbox ? static::SANDBOX_BASE_URL : static::BASE_URL;
+        return $baseUrl . ($path ? '/' . $path : '');
     }
 
-
-    public string $idName;
-
-    public function idName(): string
+    /**
+     * Retrieves the identifier name for the payment gateway.
+     *
+     * @return string
+     */
+    public function getIDName(): string
     {
         return $this->idName;
     }
 
-
+    /**
+     * Retrieves the transaction model class name from the configuration.
+     *
+     * @return string
+     */
     protected function getTransactionModel(): string
     {
-        return config('gateway-ir.table.model');
+        return config('gateway-ir.database.model');
     }
 
+    /**
+     * Creates a new transaction record in the database.
+     *
+     * @param int $amount
+     * @param string|null $description
+     * @param string|PaymentHandler $handler
+     * @return Model
+     */
     protected function createNewRecord(
-        int                   $amount,
-        ?string               $description,
-        string|PaymentHandler $handler,
-        ?Model                $user = null,
-        ?Model                $model = null,
-    ): Model
-    {
+        int $amount,
+        ?string $description,
+        string|PaymentHandler $handler
+    ): Model {
         $transModel = $this->getTransactionModel();
-
         $tries = 10;
-        do $orderId = $this->randomOrderId();
-        while ($transModel::where('order_id', $orderId)->exists() && --$tries);
+
+        // Generate a unique order ID
+        do {
+            $orderId = $this->randomOrderID();
+        } while ($transModel::where('order_id', $orderId)->exists() && --$tries);
 
         if (!$tries) {
-            throw new \RuntimeException("Failed to generate random order id");
+            throw new \RuntimeException('Failed to generate random order id');
         }
 
         return $transModel::create([
@@ -78,26 +130,31 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
             'description' => $description,
             'status' => TransactionStatuses::Pending,
             'handler' => is_string($handler) ? $handler : serialize($handler),
-            'gateway' => $this->idName(),
-            'user_type' => $user?->getMorphClass(),
-            'user_id' => $user?->getKey(),
-            'model_type' => $model?->getMorphClass(),
-            'model_id' => $model?->getKey(),
+            'gateway' => $this->getIDName()
         ]);
     }
 
-    protected function randomOrderId(): string
+    /**
+     * Generates a random order ID using UUID.
+     *
+     * @return string
+     */
+    protected function randomOrderID(): string
     {
-        return Str::uuid();
+        return Str::uuid()->toString();
     }
 
+    /**
+     * Retrieves the callback URL for a given transaction.
+     *
+     * @param Model $transaction
+     * @return string|null
+     */
     protected function getCallbackUrl(Model $transaction): ?string
     {
-        return config('gateway-ir.routes.enabled') ?
-            route(config('gateway-ir.routes.name'), [
-                'order_id' => $transaction->order_id,
-            ]) :
-            null;
+        return route(config('gateway-ir.routes.name'), [
+            'order_id' => $transaction->order_id,
+        ]);
     }
 
 }

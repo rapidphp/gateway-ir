@@ -2,15 +2,12 @@
 
 namespace Rapid\GatewayIR\Data;
 
-use Illuminate\Database\Eloquent\Model;
-
 class PaymentVerifyResult extends Data
 {
-
+    /**
+     * The amount of the transaction.
+     *
+     * @var int
+     */
     public int $amount;
-
-    public ?Model $user;
-
-    public ?Model $model;
-
 }
