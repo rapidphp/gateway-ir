@@ -135,7 +135,7 @@ class GatewayService
      */
     protected function getPendingTransaction(string $orderId): Model
     {
-        $transaction = config('gateway-ir.table.model')::query()
+        $transaction = config('gateway-ir.database.model')::query()
             ->where('order_id', $orderId)
             ->lockForUpdate()
             ->first();

@@ -10,7 +10,7 @@ class Transaction extends Model
 
     public function getTable()
     {
-        return config('gateway-ir.table.table');
+        return config('gateway-ir.database.table');
     }
 
     protected $fillable = [
