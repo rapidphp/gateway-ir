@@ -2,13 +2,13 @@
 
 namespace Rapid\GatewayIR\Portals;
 
-use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Rapid\GatewayIR\Abstract\PaymentGatewayAbstract;
-use Rapid\GatewayIR\Contracts\PaymentHandler;
 use Rapid\GatewayIR\Data\PaymentVerifyResult;
 use Rapid\GatewayIR\Data\TransactionInitializeResult;
 use Rapid\GatewayIR\Exceptions\PaymentCancelledException;
+use Rapid\GatewayIR\Handlers\PaymentHandler;
 use Rapid\GatewayIR\Portals\InternalSandbox\InternalSandboxTransactionInitializeResult;
 
 class InternalSandbox extends PaymentGatewayAbstract

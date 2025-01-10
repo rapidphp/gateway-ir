@@ -2,11 +2,11 @@
 
 namespace Rapid\GatewayIR\Abstract;
 
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use Rapid\GatewayIR\Contracts\PaymentGateway;
-use Rapid\GatewayIR\Contracts\PaymentHandler;
 use Rapid\GatewayIR\Enums\TransactionStatuses;
+use Rapid\GatewayIR\Handlers\PaymentHandler;
 
 /**
  * Abstract class representing a payment gateway.
