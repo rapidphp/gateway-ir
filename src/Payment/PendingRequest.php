@@ -62,15 +62,15 @@ class PendingRequest
         return $this;
     }
 
-    public function onPrepare(Closure $callback)
+    public function onValidate(Closure $callback)
     {
-        $this->getAnonymousHandler()->onPrepare = new SerializableClosure($callback);
+        $this->getAnonymousHandler()->validate = new SerializableClosure($callback);
         return $this;
     }
 
     public function onSuccess(Closure $callback)
     {
-        $this->getAnonymousHandler()->onSuccess = new SerializableClosure($callback);
+        $this->getAnonymousHandler()->success = new SerializableClosure($callback);
         return $this;
     }
 
