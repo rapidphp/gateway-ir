@@ -60,14 +60,11 @@ class GatewayIRServiceProvider extends ServiceProvider
     public function registerGateways(): void
     {
         foreach (config('gateway-ir.portals', []) as $idName => $gateway) {
-            [
-                'driver' => $driver,
-                'sandbox' => $sandbox,
-                'key' => $key,
-            ] = $gateway;
+            $driver = $gateway['driver'];
+            unset($gateway['driver']);
 
-            Payment::define($idName, function () use ($driver, $key, $sandbox) {
-                return new $driver($key, $sandbox);
+            Payment::define($idName, function () use ($driver, $gateway) {
+                return new $driver(...$gateway);
             });
         }
 

@@ -42,6 +42,12 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
      */
     public string $idName;
 
+    public function __construct(string $key, bool $sandbox = false)
+    {
+        $this->key = $key;
+        $this->setSandbox($sandbox);
+    }
+
     /**
      * Registers the payment gateway with a given ID name.
      *
@@ -76,7 +82,7 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
      */
     protected function endPoint(?string $path = null): string
     {
-        $baseUrl = $this->isSandbox ? static::SANDBOX_BASE_URL : static::BASE_URL;
+        $baseUrl = $this->isSandbox ? static::SANDBOX_BASE_URL ?: static::BASE_URL : static::BASE_URL;
         return $baseUrl . ($path ? '/' . $path : '');
     }
 
