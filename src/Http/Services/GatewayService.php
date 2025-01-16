@@ -37,6 +37,8 @@ class GatewayService
      */
     public function verify(string $orderId, Request $request)
     {
+        Payment::clearExpiredRecords();
+
         $response = null;
         $this->forceCommit = false;
 
@@ -135,7 +137,8 @@ class GatewayService
      */
     protected function getPendingTransaction(string $orderId): Model
     {
-        $transaction = config('gateway-ir.database.model')::query()
+        $transaction = Payment::getModel()
+            ::query()
             ->where('order_id', $orderId)
             ->lockForUpdate()
             ->first();
@@ -145,8 +148,12 @@ class GatewayService
         }
 
         // Check the status
+        if ($transaction->status == TransactionStatuses::Expired) {
+            abort(419);
+        }
+
         if ($transaction->status != TransactionStatuses::Pending) {
-            abort(Response::HTTP_UNAUTHORIZED);
+            abort(419);
         }
 
         return $transaction;
@@ -191,7 +198,7 @@ class GatewayService
      */
     protected function exportGateway(string $idName): PaymentGateway
     {
-        return Payment::get($idName) ?? abort(Response::HTTP_UNAUTHORIZED);
+        return Payment::get($idName) ?? abort(419);
     }
 
      /**

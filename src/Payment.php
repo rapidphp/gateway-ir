@@ -13,6 +13,8 @@ use Rapid\GatewayIR\Contracts\PaymentGateway;
  * @method static null|PaymentGateway secondary() Retrieves the secondary payment gateway.
  * @method static void setPrimary(string|Closure $name, null|PaymentGateway|Closure $gateway = null) Sets the primary payment gateway.
  * @method static void setSecondary(string|Closure $name, null|PaymentGateway|Closure $gateway = null) Sets the secondary payment gateway.
+ * @method static string getModel() Get the transaction model class.
+ * @method static void clearExpiredRecords() Clear the expired records.
  */
 class Payment extends Facade
 {

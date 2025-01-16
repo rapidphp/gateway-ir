@@ -4,6 +4,7 @@ namespace Rapid\GatewayIR;
 
 use Closure;
 use Rapid\GatewayIR\Contracts\PaymentGateway;
+use Rapid\GatewayIR\Enums\TransactionStatuses;
 
 class PaymentFactory
 {
@@ -157,6 +158,37 @@ class PaymentFactory
 
         if (isset($gateway)) {
             $this->define($name, $gateway);
+        }
+    }
+
+    /**
+     * Get the transaction model class.
+     *
+     * @return string
+     */
+    public function getModel(): string
+    {
+        return config('gateway-ir.database.model');
+    }
+
+    /**
+     * Expire and remove unused transactions.
+     *
+     * @return void
+     */
+    public function clearExpiredRecords(): void
+    {
+        $this->getModel()
+            ::query()
+            ->where('status', TransactionStatuses::Pending)
+            ->where('created_at', '<=', now()->subSeconds(config('gateway-ir.expire.expire_after')))
+            ->upadte(['status' => TransactionStatuses::Expired]);
+
+        if ($doneKeep = config('gateway-ir.expire.dont_keep')) {
+            $this->getModel()
+                ::query()
+                ->whereIn('status', $doneKeep)
+                ->delete();
         }
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Rapid\GatewayIR\Contracts\PaymentGateway;
 use Rapid\GatewayIR\Enums\TransactionStatuses;
 use Rapid\GatewayIR\Handlers\PaymentHandler;
+use Rapid\GatewayIR\Payment;
 
 /**
  * Abstract class representing a payment gateway.
@@ -96,7 +97,7 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
      */
     protected function getTransactionModel(): string
     {
-        return config('gateway-ir.database.model');
+        return Payment::getModel();
     }
 
     /**
@@ -112,6 +113,8 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
         ?string $description,
         string|PaymentHandler $handler
     ): Model {
+        Payment::clearExpiredRecords();
+
         $transModel = $this->getTransactionModel();
         $tries = 10;
 

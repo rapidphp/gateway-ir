@@ -23,6 +23,7 @@ return new class extends Migration
                 TransactionStatuses::InternalError,
                 TransactionStatuses::PendInQueue,
                 TransactionStatuses::Reverted,
+                TransactionStatuses::Expired,
             ]);
             $table->text('handler');
             $table->string('gateway');

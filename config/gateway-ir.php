@@ -33,6 +33,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Expiration Settings
+    |--------------------------------------------------------------------------
+    | This section defines the expiration settings for the payment gateway.
+    |
+    */
+
+    'expire' => [
+        'expire_after' => 900,
+        'dont_keep' => [
+            // \Rapid\GatewayIR\Enums\TransactionStatuses::Expired,
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Sandbox Mode
     |--------------------------------------------------------------------------
     | This option allows you to enable or disable sandbox mode for the payment
