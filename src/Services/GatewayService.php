@@ -5,6 +5,7 @@ namespace Rapid\GatewayIR\Services;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\View;
 use Rapid\GatewayIR\Contracts\GatewaySupportsRevert;
 use Rapid\GatewayIR\Contracts\PaymentGateway;
 use Rapid\GatewayIR\Data\PaymentCancelledResult;
@@ -62,20 +63,24 @@ class GatewayService
 
                 $data = new PaymentFailed($gateway);
 
-                return $handlerSetup->fireFail($data) ?? $errorCode = 403;
+                $response = $handlerSetup->fireFail($data);
+                $response ??= $this->render(config('gateway-ir.views.failed'));
+
+                return $response ?? $errorCode = 403;
 
             } catch (PaymentVerifyRepeatedException|GatewayException) {
 
-                abort(Response::HTTP_FORBIDDEN);
+                return $this->render(config('gateway-ir.views.failed')) ??
+                    $errorCode = Response::HTTP_FORBIDDEN;
 
-            } catch (PaymentCancelledException $cancelled) {
+            } catch (PaymentCancelledException) {
 
                 $transaction->update([
                     'status' => TransactionStatuses::Cancelled,
                 ]);
 
                 $data = new PaymentCancelledResult($gateway);
-                return $handlerSetup->fireCancel($data);
+                return $handlerSetup->fireCancel($data) ?? $this->render(config('gateway-ir.views.cancelled'));
 
             }
 
@@ -84,7 +89,7 @@ class GatewayService
                     'status' => TransactionStatuses::Success,
                 ]);
 
-                return $handlerSetup?->fireSuccess($result);
+                return $handlerSetup?->fireSuccess($result) ?? $this->render(config('gateway-ir.views.successful'));
             } catch (\Throwable $exception) {
                 report($exception);
 
@@ -95,19 +100,19 @@ class GatewayService
                             'status' => TransactionStatuses::Reverted,
                         ]);
 
-                        return null;
+                        return $this->render(config('gateway-ir.views.failed'));
                     } catch (\Throwable $exception) {
                         report($exception);
                     }
                 }
 
-                dispatch(new TransactionDone($transaction, $result));
+                dispatch(new TransactionDone($transaction, $result))->delay(now()->addMinute());
                 $transaction->update([
                     'status' => TransactionStatuses::PendInQueue,
                 ]);
-            }
 
-            return null;
+                return $this->render(config('gateway-ir.views.pending'));
+            }
         });
 
         if (isset($errorCode)) {
@@ -174,22 +179,16 @@ class GatewayService
         }
 
         // Check and create the handler
-        try {
-
-            if (class_exists($handler) && is_a($handler, PaymentHandler::class, true)) {
-                return new $handler();
-            }
-
-            $handler = @unserialize($handler);
-            if (!($handler instanceof PaymentHandler)) {
-                throw new \Exception();
-            }
-
-            return $handler;
-
-        } catch (\Throwable) {
-            abort(Response::HTTP_UNAUTHORIZED);
+        if (class_exists($handler) && is_a($handler, PaymentHandler::class, true)) {
+            return new $handler();
         }
+
+        $handler = @unserialize($handler);
+        if (!($handler instanceof PaymentHandler)) {
+            abort(413);
+        }
+
+        return $handler;
     }
 
     /**
@@ -204,15 +203,14 @@ class GatewayService
     }
 
     /**
-     * Handles the success response from the payment handler.
+     * Render a view
      *
-     * @param PaymentHandler|null $handler
-     * @param PaymentVerifyResult $result
+     * @param string $view
      * @return mixed
      */
-    protected function handleSuccess(?PaymentHandler $handler, PaymentVerifyResult $result)
+    protected function render(string $view)
     {
-        return $handler?->success($result);
+        return View::exists($view) ? view($view) : null;
     }
 
 }

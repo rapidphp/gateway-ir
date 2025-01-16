@@ -40,7 +40,7 @@ return [
     */
 
     'expire' => [
-        'expire_after' => 900,
+        'expire_after' => 60 * 30,
         'dont_keep' => [
             // \Rapid\GatewayIR\Enums\TransactionStatuses::Expired,
         ],
@@ -111,6 +111,22 @@ return [
             'driver' => \Rapid\GatewayIR\Portals\InternalSandbox::class,
         ],
 
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Payment Gateway Views
+    |--------------------------------------------------------------------------
+    | This section defines the views that will be used for different payment
+    | statuses such as successful, cancelled, expired, failed, and pending.
+    */
+
+    'views' => [
+        'successful' => 'payment.successful',
+        'cancelled' => 'payment.cancelled',
+        'expired' => 'payment.expired',
+        'failed' => 'payment.failed',
+        'pending' => 'payment.pending',
     ],
 
 ];
