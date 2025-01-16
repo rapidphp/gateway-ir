@@ -3,32 +3,36 @@
 namespace Rapid\GatewayIR\Handlers;
 
 use Laravel\SerializableClosure\SerializableClosure;
-use Rapid\GatewayIR\Data\PaymentPrepare;
-use Rapid\GatewayIR\Data\PaymentVerifyResult;
 
 class AnonymousPaymentHandler extends PaymentHandler
 {
 
     public function __construct(
-        public ?SerializableClosure $onPrepare = null,
-        public ?SerializableClosure $onSuccess = null,
+        public ?SerializableClosure $success = null,
+        public ?SerializableClosure $validate = null,
         public array $parameters = [],
     )
     {
     }
 
-    public function prepare(PaymentPrepare $payment)
+    public function setup(HandleSetup $setup): void
     {
-        if (isset($this->onPrepare)) {
-            ($this->onPrepare)($payment, ...$this->parameters);
-        }
+        $setup
+            ->when($this->success)
+            ->success($this->resolveCallback($this->success))
+            ->when($this->validate)
+            ->validate($this->resolveCallback($this->validate));
     }
 
-    public function success(PaymentVerifyResult $data)
+    protected function resolveCallback($callback)
     {
-        if (isset($this->onSuccess)) {
-            ($this->onSuccess)($data, ...$this->parameters);
+        if ($callback === null) {
+            return null;
         }
+
+        return function ($data) use ($callback) {
+            return $callback($data, ...$this->parameters);
+        };
     }
 
 }

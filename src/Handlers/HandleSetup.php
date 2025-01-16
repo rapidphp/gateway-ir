@@ -3,6 +3,7 @@
 namespace Rapid\GatewayIR\Handlers;
 
 use Closure;
+use Illuminate\Support\Traits\Conditionable;
 use Rapid\GatewayIR\Data\PaymentCancelledResult;
 use Rapid\GatewayIR\Data\PaymentFailed;
 use Rapid\GatewayIR\Data\PaymentPrepare;
@@ -10,6 +11,7 @@ use Rapid\GatewayIR\Data\PaymentVerifyResult;
 
 final class HandleSetup
 {
+    use Conditionable;
 
     public function __construct()
     {
