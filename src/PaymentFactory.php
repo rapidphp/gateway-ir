@@ -182,7 +182,7 @@ class PaymentFactory
             ::query()
             ->where('status', TransactionStatuses::Pending)
             ->where('created_at', '<=', now()->subSeconds(config('gateway-ir.expire.expire_after')))
-            ->upadte(['status' => TransactionStatuses::Expired]);
+            ->update(['status' => TransactionStatuses::Expired]);
 
         if ($doneKeep = config('gateway-ir.expire.dont_keep')) {
             $this->getModel()

@@ -3,7 +3,6 @@
 namespace Rapid\GatewayIR\Services;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Rapid\GatewayIR\Contracts\GatewaySupportsRevert;
