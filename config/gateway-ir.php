@@ -40,7 +40,7 @@ return [
     */
 
     'expire' => [
-        'expire_after' => 60*30,
+        'expire_after' => 60 * 30,
         'dont_keep' => [
             // \Rapid\GatewayIR\Enums\TransactionStatuses::Expired,
         ],
