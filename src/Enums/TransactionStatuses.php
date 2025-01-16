@@ -17,4 +17,6 @@ final class TransactionStatuses
 
     public const Reverted = 'reverted';
 
+    public const Expired = 'expired';
+
 }

@@ -1,12 +1,13 @@
 <?php
 
-namespace Rapid\GatewayIR\Abstract;
+namespace Rapid\GatewayIR\Payment;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Rapid\GatewayIR\Contracts\PaymentGateway;
 use Rapid\GatewayIR\Enums\TransactionStatuses;
 use Rapid\GatewayIR\Handlers\PaymentHandler;
+use Rapid\GatewayIR\Payment;
 
 /**
  * Abstract class representing a payment gateway.
@@ -40,6 +41,12 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
      * @var string
      */
     public string $idName;
+
+    public function __construct(string $key, bool $sandbox = false)
+    {
+        $this->key = $key;
+        $this->setSandbox($sandbox);
+    }
 
     /**
      * Registers the payment gateway with a given ID name.
@@ -75,7 +82,7 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
      */
     protected function endPoint(?string $path = null): string
     {
-        $baseUrl = $this->isSandbox ? static::SANDBOX_BASE_URL : static::BASE_URL;
+        $baseUrl = $this->isSandbox ? static::SANDBOX_BASE_URL ?: static::BASE_URL : static::BASE_URL;
         return $baseUrl . ($path ? '/' . $path : '');
     }
 
@@ -96,7 +103,7 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
      */
     protected function getTransactionModel(): string
     {
-        return config('gateway-ir.database.model');
+        return Payment::getModel();
     }
 
     /**
@@ -112,6 +119,8 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
         ?string $description,
         string|PaymentHandler $handler
     ): Model {
+        Payment::clearExpiredRecords();
+
         $transModel = $this->getTransactionModel();
         $tries = 10;
 
@@ -155,6 +164,16 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
         return route(config('gateway-ir.routes.name'), [
             'order_id' => $transaction->order_id,
         ]);
+    }
+
+    /**
+     * Prepares a new pending payment request.
+     *
+     * @return PendingRequest
+     */
+    public function prepare(): PendingRequest
+    {
+        return new PendingRequest($this);
     }
 
 }

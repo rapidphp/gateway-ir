@@ -52,4 +52,29 @@ class GatewayIRServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
     }
 
+    /**
+     * Register the payment gateways from configuration.
+     *
+     * @return void
+     */
+    public function registerGateways(): void
+    {
+        foreach (config('gateway-ir.portals', []) as $idName => $gateway) {
+            $driver = $gateway['driver'];
+            unset($gateway['driver']);
+
+            Payment::define($idName, function () use ($driver, $gateway) {
+                return new $driver(...$gateway);
+            });
+        }
+
+        if ($default = config('gateway-ir.default')) {
+            Payment::setPrimary($default);
+        }
+
+        if ($default = config('gateway-ir.secondary')) {
+            Payment::setSecondary($default);
+        }
+    }
+
 }

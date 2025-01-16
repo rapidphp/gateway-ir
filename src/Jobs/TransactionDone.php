@@ -5,7 +5,7 @@ namespace Rapid\GatewayIR\Jobs;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Model;
 use Rapid\GatewayIR\Data\PaymentVerifyResult;
-use Rapid\GatewayIR\Http\Services\GatewayService;
+use Rapid\GatewayIR\Services\GatewayService;
 
 class TransactionDone implements ShouldQueue
 {

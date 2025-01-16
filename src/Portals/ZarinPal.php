@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-use Rapid\GatewayIR\Abstract\PaymentGatewayAbstract;
+use Rapid\GatewayIR\Concerns\GatewayDefaults;
+use Rapid\GatewayIR\Payment\PaymentGatewayAbstract;
 use Rapid\GatewayIR\Exceptions\PaymentCancelledException;
 use Rapid\GatewayIR\Exceptions\PaymentFailedException;
 use Rapid\GatewayIR\Exceptions\PaymentVerifyRepeatedException;
@@ -17,37 +18,10 @@ use Rapid\GatewayIR\Portals\ZarinPal\ZarinPalTransactionInitializeResult;
 
 class ZarinPal extends PaymentGatewayAbstract
 {
+    use GatewayDefaults;
 
     protected const BASE_URL = 'https://payment.zarinpal.com';
     protected const SANDBOX_BASE_URL = 'https://sandbox.zarinpal.com';
-
-    public function __construct(string $key, bool $sandbox = false)
-    {
-        $this->key = $key;
-        $this->setSandbox($sandbox);
-    }
-
-    /**
-     * Creates a new instance of the ZarinPal gateway.
-     *
-     * @param string $key
-     * @return static
-     */
-    public static function make(string $key): static
-    {
-        return new static($key);
-    }
-
-    /**
-     * Creates a new instance of the ZarinPal gateway in sandbox mode.
-     *
-     * @param string|null $key
-     * @return static
-     */
-    public static function sandbox(?string $key = null): static
-    {
-        return new static($key ?? Str::uuid(), true);
-    }
 
     /**
      * @inheritDoc

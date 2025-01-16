@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Rapid\GatewayIR\Data\PaymentVerifyResult;
 use Rapid\GatewayIR\Data\TransactionInitializeResult;
 use Rapid\GatewayIR\Handlers\PaymentHandler;
+use Rapid\GatewayIR\Payment\PendingRequest;
 
 /**
  * Interface for payment gateway implementations.
@@ -53,5 +54,12 @@ interface PaymentGateway
      * @return PaymentVerifyResult
      */
     public function verify(Model $transaction, Request $request): PaymentVerifyResult;
+
+    /**
+     * Prepares a new pending payment request.
+     *
+     * @return PendingRequest
+     */
+    public function prepare(): PendingRequest;
 
 }
