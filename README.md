@@ -112,7 +112,7 @@ Therefore, you can store payment information in these classes that you define
 yourself and then implement payment logic.
 
 ```php
-class MyHandler extends PaymentHandler
+class BuyProductHandler extends PaymentHandler
 {
     public function __construct(
         protected User $user,
@@ -140,5 +140,16 @@ class MyHandler extends PaymentHandler
                 return view('payment.fail');
             });
     }
+}
+```
+
+Usage:
+
+```php
+public function buy(Product $product)
+{
+    return payment()
+        ->request($product->price, 'Buy ' . $product->name, new BuyProductHandler(auth()->user(), $product))
+        ->redirect();
 }
 ```
