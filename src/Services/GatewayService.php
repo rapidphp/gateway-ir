@@ -1,12 +1,15 @@
 <?php
 
-namespace Rapid\GatewayIR\Http\Services;
+namespace Rapid\GatewayIR\Services;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Rapid\GatewayIR\Contracts\GatewaySupportsRevert;
 use Rapid\GatewayIR\Contracts\PaymentGateway;
+use Rapid\GatewayIR\Data\PaymentCancelledResult;
+use Rapid\GatewayIR\Data\PaymentFailed;
 use Rapid\GatewayIR\Data\PaymentPrepare;
 use Rapid\GatewayIR\Data\PaymentVerifyResult;
 use Rapid\GatewayIR\Enums\TransactionStatuses;
@@ -21,12 +24,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class GatewayService
 {
-    /**
-     * Indicates whether to force commit the database transaction.
-     *
-     * @var bool
-     */
-    public bool $forceCommit;
 
     /**
      * Verifies a payment transaction based on the provided order ID and request.
@@ -39,23 +36,22 @@ class GatewayService
     {
         Payment::clearExpiredRecords();
 
-        $response = null;
-        $this->forceCommit = false;
+        $errorCode = null;
 
-        try {
-            DB::beginTransaction();
+        $response = DB::transaction(function () use ($orderId, $request, &$errorCode) {
 
             $transaction = $this->getPendingTransaction($orderId);
             $handler = $this->exportHandler($transaction->handler);
             $gateway = $this->exportGateway($transaction->gateway);
+            $handlerSetup = $handler?->getSetup();
 
             // prepare the verification
             if ($handler) {
                 $prepare = new PaymentPrepare($gateway);
                 $prepare->amount = $transaction->amount;
 
-                if ($response = $handler->prepare($prepare)) {
-                    return $response;
+                if (!$handlerSetup->fireValidate($prepare)) {
+                    abort(403);
                 }
             }
 
@@ -63,7 +59,13 @@ class GatewayService
 
                 $result = $gateway->verify($transaction, $request);
 
-            } catch (PaymentFailedException|PaymentVerifyRepeatedException|GatewayException) {
+            } catch (PaymentFailedException $failed) {
+
+                $data = new PaymentFailed($gateway);
+
+                return $handlerSetup->fireFail($data) ?? $errorCode = 403;
+
+            } catch (PaymentVerifyRepeatedException|GatewayException) {
 
                 abort(Response::HTTP_FORBIDDEN);
 
@@ -73,43 +75,44 @@ class GatewayService
                     'status' => TransactionStatuses::Cancelled,
                 ]);
 
-                return null;
+                $data = new PaymentCancelledResult($gateway);
+                return $handlerSetup->fireCancel($data);
 
             }
 
-            $status = TransactionStatuses::Success;
             try {
-                $response = $handler?->success($result);
+                $transaction->update([
+                    'status' => TransactionStatuses::Success,
+                ]);
+
+                return $handlerSetup?->fireSuccess($result);
             } catch (\Throwable $exception) {
                 report($exception);
 
                 if ($gateway instanceof GatewaySupportsRevert) {
                     try {
                         $gateway->revert($transaction, $result);
-                        $status = TransactionStatuses::Reverted;
-                        goto skipHandling;
+                        $transaction->update([
+                            'status' => TransactionStatuses::Reverted,
+                        ]);
+
+                        return null;
                     } catch (\Throwable $exception) {
                         report($exception);
                     }
                 }
 
                 dispatch(new TransactionDone($transaction, $result));
-                $status = TransactionStatuses::PendInQueue;
+                $transaction->update([
+                    'status' => TransactionStatuses::PendInQueue,
+                ]);
             }
-            skipHandling:
 
-            $transaction->update([
-                'status' => $status,
-            ]);
+            return null;
+        });
 
-            DB::commit();
-        } catch (\Throwable $e) {
-            if ($this->forceCommit) {
-                DB::commit();
-            } else {
-                DB::rollBack();
-            }
-            throw $e;
+        if (isset($errorCode)) {
+            abort($errorCode);
         }
 
         return $response;
@@ -126,7 +129,7 @@ class GatewayService
     {
         $handler = $this->exportHandler($transaction->handler);
 
-        $handler?->success($result);
+        $handler?->getSetup()?->fireSuccess($result);
     }
 
     /**
@@ -153,7 +156,7 @@ class GatewayService
         }
 
         if ($transaction->status != TransactionStatuses::Pending) {
-            abort(419);
+            abort(403);
         }
 
         return $transaction;
@@ -201,7 +204,7 @@ class GatewayService
         return Payment::get($idName) ?? abort(419);
     }
 
-     /**
+    /**
      * Handles the success response from the payment handler.
      *
      * @param PaymentHandler|null $handler
