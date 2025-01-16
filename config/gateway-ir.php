@@ -113,4 +113,20 @@ return [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Payment Gateway Views
+    |--------------------------------------------------------------------------
+    | This section defines the views that will be used for different payment
+    | statuses such as successful, cancelled, expired, failed, and pending.
+    */
+    
+    'views' => [
+        'successful' => 'payment.successful',
+        'cancelled' => 'payment.cancelled',
+        'expired' => 'payment.expired',
+        'failed' => 'payment.failed',
+        'pending' => 'payment.pending',
+    ],
+
 ];
