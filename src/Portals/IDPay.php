@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 use Rapid\GatewayIR\Concerns\GatewayDefaults;
 use Rapid\GatewayIR\Exceptions\PaymentCancelledException;
 use Rapid\GatewayIR\Exceptions\PaymentFailedException;
@@ -63,6 +64,9 @@ class IDPay extends PaymentGatewayAbstract
                 throw new IDPayGatewayException($response->json('error_code', 0), $response->json('error_message'));
             }
 
+            $authority = $response->json('id');
+            $this->initializeRecord($transaction, $authority);
+
             $result = new IDPayTransactionInitializeResult($this);
             $result->url = $response->json('link');
 
@@ -84,9 +88,11 @@ class IDPay extends PaymentGatewayAbstract
             abort(403);
         }
 
-        $request->validate([
+        abort_if(Validator::make($request->all(), [
             'id' => 'required|string',
-        ]);
+        ])->fails(), 403);
+
+        abort_if($request->input('id') != $transaction->authority, 403);
 
         $response = Http::asJson()
             ->acceptJson()

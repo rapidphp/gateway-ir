@@ -5,6 +5,7 @@ namespace Rapid\GatewayIR\Portals;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Rapid\GatewayIR\Concerns\GatewayDefaults;
 use Rapid\GatewayIR\Payment\PaymentGatewayAbstract;
@@ -61,16 +62,18 @@ class ZarinPal extends PaymentGatewayAbstract
                 throw new ZarinPalGatewayException($code, $response->json('errors.message'));
             }
 
+            $authority = $response->json('data.authority');
+            $this->initializeRecord($transaction, $authority);
+
             $result = new ZarinPalTransactionInitializeResult($this);
 
             @[
                 'message' => $message,
-                'authority' => $result->authority,
                 'fee_type' => $result->feeType,
                 'fee' => $result->fee,
             ] = $response->json('data', []);
 
-            $result->url = $this->endPoint('pg/StartPay/' . $result->authority);
+            $result->url = $this->endPoint('pg/StartPay/' . $authority);
 
             return $result;
         } catch (\Throwable $e) {
@@ -84,18 +87,24 @@ class ZarinPal extends PaymentGatewayAbstract
      */
     public function verify(Model $transaction, Request $request): ZarinPalPaymentVerifyResult
     {
-        if ($request->get('Status') == 'NOK') {
+        if ($request->input('Status') == 'NOK') {
             throw new PaymentCancelledException();
-        } elseif ($request->get('Status') != 'OK') {
+        } elseif ($request->input('Status') != 'OK') {
             abort(403);
         }
+
+        abort_if(Validator::make($request->all(), [
+            'Authority' => 'required|string|max:255',
+        ])->fails(), 403);
+
+        abort_if($request->input('Authority') != $transaction->authority, 403);
 
         $response = Http::asJson()
             ->acceptJson()
             ->post($this->endPoint("pg/v4/payment/verify.json"), array_filter([
                 'merchant_id' => $this->key,
                 'amount' => $transaction->amount,
-                'authority' => $request->get('Authority'),
+                'authority' => $request->input('Authority'),
             ]));
 
         if ($code = $response->json('errors.code')) {
