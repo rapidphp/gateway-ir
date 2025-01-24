@@ -14,6 +14,15 @@ _Optional to publish assets:_
 php artisan vendor:publish --provider="Rapid\GatewayIR\GatewayIRServiceProvider"
 ```
 
+## Supported Portals
+
+|      Portal      |       Class       | Has Sandbox | Tested |         Description          |
+|:----------------:|:-----------------:|:-----------:|:------:|:----------------------------:|
+| Internal Sandbox | `InternalSandbox` |     ---     |  yes   | Testing portal in local host |
+|    Zarin Pal     |    `ZarinPal`     |     yes     |   no   |     https://zarinpal.com     |
+|     Next Pay     |     `NextPay`     |     no      |   no   |     https://nextpay.org      |
+|      ID Pay      |      `IDPay`      |     yes     |   no   |       https://idpay.ir       |
+
 ## Portals
 
 ### Fixed Portals
@@ -73,6 +82,7 @@ Payment::define('my_portal', function () {
     return new ZarinPal('key');
 });
 ```
+
 
 ## Payment
 
