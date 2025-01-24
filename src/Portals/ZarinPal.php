@@ -16,6 +16,7 @@ use Rapid\GatewayIR\Handlers\PaymentHandler;
 use Rapid\GatewayIR\Portals\ZarinPal\ZarinPalGatewayException;
 use Rapid\GatewayIR\Portals\ZarinPal\ZarinPalPaymentVerifyResult;
 use Rapid\GatewayIR\Portals\ZarinPal\ZarinPalTransactionInitializeResult;
+use Rapid\GatewayIR\Supports\Currency;
 
 class ZarinPal extends PaymentGatewayAbstract
 {
@@ -40,6 +41,8 @@ class ZarinPal extends PaymentGatewayAbstract
             'email' => $email,
         ] = $meta;
 
+        $amount = Currency::from($amount, $currency ?? 'IRT');
+
         $transaction = $this->createNewRecord($amount, $description, $handler);
 
         try {
@@ -47,10 +50,10 @@ class ZarinPal extends PaymentGatewayAbstract
                 ->acceptJson()
                 ->post($this->endPoint("pg/v4/payment/request.json"), array_filter([
                     'merchant_id' => $this->key,
+                    'currency' => 'IRT',
                     'amount' => $amount,
                     'description' => $description,
                     'callback_url' => $this->getCallbackUrl($transaction),
-                    'currency' => $currency,
                     'order_id' => $transaction->order_id,
                     'metadata' => array_filter([
                         'mobile' => $mobile,
@@ -103,7 +106,7 @@ class ZarinPal extends PaymentGatewayAbstract
             ->acceptJson()
             ->post($this->endPoint("pg/v4/payment/verify.json"), array_filter([
                 'merchant_id' => $this->key,
-                'amount' => $transaction->amount,
+                'amount' => Currency::to($transaction->amount, 'IRR'),
                 'authority' => $request->input('Authority'),
             ]));
 

@@ -17,6 +17,7 @@ use Rapid\GatewayIR\Payment\PaymentGatewayAbstract;
 use Rapid\GatewayIR\Portals\IDPay\IDPayGatewayException;
 use Rapid\GatewayIR\Portals\IDPay\IDPayPaymentVerifyResult;
 use Rapid\GatewayIR\Portals\IDPay\IDPayTransactionInitializeResult;
+use Rapid\GatewayIR\Supports\Currency;
 
 class IDPay extends PaymentGatewayAbstract
 {
@@ -40,7 +41,10 @@ class IDPay extends PaymentGatewayAbstract
             'email' => $email,
             'mail' => $mail,
             'name' => $name,
+            'currency' => $currency,
         ] = $meta;
+
+        $amount = Currency::from($amount, $currency ?? 'IRT');
 
         $transaction = $this->createNewRecord($amount, $description, $handler);
 
@@ -52,7 +56,7 @@ class IDPay extends PaymentGatewayAbstract
                 ->withHeader('X-SANDBOX', '1')
                 ->post($this->endPoint("v1.1/payment"), array_filter([
                     'order_id' => $transaction->order_id,
-                    'amount' => $amount,
+                    'amount' => Currency::to($amount, 'IRR'),
                     'description' => $description,
                     'callback_url' => $this->getCallbackUrl($transaction),
                     'name' => $name,
@@ -120,10 +124,10 @@ class IDPay extends PaymentGatewayAbstract
 
         $result->createdAt = Carbon::make($response->json('payment.date'));
         $result->verifiedAt = Carbon::make($response->json('verify.date'));
+        $result->amount = $transaction->amount;
 
         @[
             'track_id' => $result->trackId,
-            'amount' => $result->amount,
         ] = $response->json();
 
         @[

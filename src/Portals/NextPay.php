@@ -14,6 +14,7 @@ use Rapid\GatewayIR\Payment\PaymentGatewayAbstract;
 use Rapid\GatewayIR\Portals\NextPay\NextPayGatewayException;
 use Rapid\GatewayIR\Portals\NextPay\NextPayPaymentVerifyResult;
 use Rapid\GatewayIR\Portals\NextPay\NextPayTransactionInitializeResult;
+use Rapid\GatewayIR\Supports\Currency;
 
 class NextPay extends PaymentGatewayAbstract implements GatewaySupportsRevert
 {
@@ -38,6 +39,8 @@ class NextPay extends PaymentGatewayAbstract implements GatewaySupportsRevert
             'allowedCard' => $allowedCard,
         ] = $meta;
 
+        $amount = Currency::from($amount, $currency ?? 'IRT');
+
         $transaction = $this->createNewRecord($amount, $description, $handler);
 
         try {
@@ -46,9 +49,9 @@ class NextPay extends PaymentGatewayAbstract implements GatewaySupportsRevert
                 ->post($this->endPoint("nx/gateway/token"), array_filter([
                     'api_key' => $this->key,
                     'amount' => $amount,
+                    'currency' => 'IRT',
                     'payer_desc' => $description,
                     'callback_uri' => $this->getCallbackUrl($transaction),
-                    'currency' => $currency,
                     'order_id' => $transaction->order_id,
                     'customer_phone' => $mobile,
                     'custom_json_fields' => isset($custom) ? json_encode($custom) : null,
@@ -103,6 +106,7 @@ class NextPay extends PaymentGatewayAbstract implements GatewaySupportsRevert
                 'api_key' => $this->key,
                 'trans_id' => $transId,
                 'amount' => $amount,
+                'currency' => 'IRT',
             ]));
 
         if (0 !== $code = $response->json('code')) {
