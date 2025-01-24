@@ -18,7 +18,7 @@ use Rapid\GatewayIR\Exceptions\PaymentCancelledException;
 use Rapid\GatewayIR\Exceptions\PaymentFailedException;
 use Rapid\GatewayIR\Exceptions\PaymentVerifyRepeatedException;
 use Rapid\GatewayIR\Handlers\PaymentHandler;
-use Rapid\GatewayIR\Jobs\TransactionDone;
+use Rapid\GatewayIR\Jobs\TransactionRetry;
 use Rapid\GatewayIR\Payment;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -106,7 +106,7 @@ class GatewayService
                     }
                 }
 
-                dispatch(new TransactionDone($transaction, $result))->delay(now()->addMinute());
+                dispatch(new TransactionRetry($transaction, $result))->delay(now()->addMinute());
                 $transaction->update([
                     'status' => TransactionStatuses::PendInQueue,
                 ]);
@@ -131,9 +131,14 @@ class GatewayService
      */
     public function retry(Model $transaction, PaymentVerifyResult $result)
     {
-        $handler = $this->exportHandler($transaction->handler);
+        DB::transaction(function () use ($transaction, $result) {
+            $transaction = $transaction::query()->lockForUpdate()->find($transaction->getKey());
 
-        $handler?->getSetup()?->fireSuccess($result);
+            $handler = $this->exportHandler($transaction->handler);
+
+            $handler?->getSetup()?->fireSuccess($result);
+            $transaction->update(['status' => TransactionStatuses::Success]);
+        });
     }
 
     /**

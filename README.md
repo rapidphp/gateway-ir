@@ -168,3 +168,23 @@ public function buy(Product $product)
         ->redirect();
 }
 ```
+
+## Exception Handling
+
+Initially, you should prevent errors from occurring in your Handler!
+Because executing an error after payment verification can result in the loss
+of the customer's money.
+
+However, if for any reason an error occurs,
+Gateway-IR tries to resolve the issue in two ways:
+
+1. If the payment gateway supports refunds, it will execute it.
+If it fails for any reason, the second method will be executed next.
+2. In the end, the program tries to re-execute the operation with the help of
+a queue. Your code will be re-executed in the queue approximately 10 times
+until no more errors occur! However, if the error persists,
+there is nothing more we can do. All errors are logged,
+and in the transactions table, the state of incomplete transactions is set
+to `pend_in_queue`.
+
+> Important: Don't throw errors for reverting the transaction!
