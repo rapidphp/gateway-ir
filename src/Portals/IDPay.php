@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 use Rapid\GatewayIR\Concerns\GatewayDefaults;
 use Rapid\GatewayIR\Exceptions\PaymentCancelledException;
 use Rapid\GatewayIR\Exceptions\PaymentFailedException;
@@ -16,6 +17,7 @@ use Rapid\GatewayIR\Payment\PaymentGatewayAbstract;
 use Rapid\GatewayIR\Portals\IDPay\IDPayGatewayException;
 use Rapid\GatewayIR\Portals\IDPay\IDPayPaymentVerifyResult;
 use Rapid\GatewayIR\Portals\IDPay\IDPayTransactionInitializeResult;
+use Rapid\GatewayIR\Supports\Currency;
 
 class IDPay extends PaymentGatewayAbstract
 {
@@ -39,7 +41,10 @@ class IDPay extends PaymentGatewayAbstract
             'email' => $email,
             'mail' => $mail,
             'name' => $name,
+            'currency' => $currency,
         ] = $meta;
+
+        $amount = Currency::from($amount, $currency ?? 'IRT');
 
         $transaction = $this->createNewRecord($amount, $description, $handler);
 
@@ -51,7 +56,7 @@ class IDPay extends PaymentGatewayAbstract
                 ->withHeader('X-SANDBOX', '1')
                 ->post($this->endPoint("v1.1/payment"), array_filter([
                     'order_id' => $transaction->order_id,
-                    'amount' => $amount,
+                    'amount' => Currency::to($amount, 'IRR'),
                     'description' => $description,
                     'callback_url' => $this->getCallbackUrl($transaction),
                     'name' => $name,
@@ -62,6 +67,9 @@ class IDPay extends PaymentGatewayAbstract
             if ($response->clientError()) {
                 throw new IDPayGatewayException($response->json('error_code', 0), $response->json('error_message'));
             }
+
+            $authority = $response->json('id');
+            $this->initializeRecord($transaction, $authority);
 
             $result = new IDPayTransactionInitializeResult($this);
             $result->url = $response->json('link');
@@ -84,9 +92,11 @@ class IDPay extends PaymentGatewayAbstract
             abort(403);
         }
 
-        $request->validate([
+        abort_if(Validator::make($request->all(), [
             'id' => 'required|string',
-        ]);
+        ])->fails(), 403);
+
+        abort_if($request->input('id') != $transaction->authority, 403);
 
         $response = Http::asJson()
             ->acceptJson()
@@ -114,10 +124,10 @@ class IDPay extends PaymentGatewayAbstract
 
         $result->createdAt = Carbon::make($response->json('payment.date'));
         $result->verifiedAt = Carbon::make($response->json('verify.date'));
+        $result->amount = $transaction->amount;
 
         @[
             'track_id' => $result->trackId,
-            'amount' => $result->amount,
         ] = $response->json();
 
         @[

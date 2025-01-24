@@ -20,6 +20,7 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
 
     protected const BASE_URL = '';
     protected const SANDBOX_BASE_URL = '';
+    protected const SUPPORTS_SANDBOX = true;
 
     /**
      * Gateway API key.
@@ -67,8 +68,12 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
      */
     protected function setSandbox(bool $sandbox): void
     {
+        if ($sandbox && !static::SUPPORTS_SANDBOX) {
+            throw new \RuntimeException(sprintf('Portal [%s] is not supported sandbox', static::class));
+        }
+
         if ($sandbox && app()->isProduction()) {
-            throw new \RuntimeException('Sandbox payment gateway is not supported in production environment.');
+            throw new \RuntimeException('Sandbox payment gateway is not available in production environment.');
         }
 
         $this->isSandbox = $sandbox;
@@ -140,6 +145,13 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
             'status' => TransactionStatuses::Pending,
             'handler' => is_string($handler) ? $handler : serialize($handler),
             'gateway' => $this->getIDName()
+        ]);
+    }
+
+    protected function initializeRecord(Model $record, string $authority)
+    {
+        $record->update([
+            'authority' => $authority,
         ]);
     }
 
