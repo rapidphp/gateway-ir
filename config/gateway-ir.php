@@ -1,5 +1,7 @@
 <?php
 
+use Rapid\GatewayIR\Portals;
+
 return [
 
     /*
@@ -90,25 +92,24 @@ return [
     'portals' => [
 
         'zarinpal' => [
-            'driver' => \Rapid\GatewayIR\Portals\ZarinPal::class,
+            'driver' => Portals\ZarinPal::class,
             'key' => env('GATEWAY_ZARINPAL_KEY', '9f82b83f-7893-4b2e-93b8-9a096ceb3428'),
             'sandbox' => env('GATEWAY_ZARINPAL_SANDBOX', false),
         ],
 
         'idpay' => [
-            'driver' => \Rapid\GatewayIR\Portals\IDPay::class,
+            'driver' => Portals\IDPay::class,
             'key' => env('GATEWAY_IDPAY_KEY', ''),
             'sandbox' => env('GATEWAY_IDPAY_SANDBOX', false),
         ],
 
         'nextpay' => [
-            'driver' => \Rapid\GatewayIR\Portals\NextPay::class,
+            'driver' => Portals\NextPay::class,
             'key' => env('GATEWAY_NEXTPAY_KEY', ''),
-            'sandbox' => env('GATEWAY_NEXTPAY_SANDBOX', false),
         ],
 
         'internal_sandbox' => [
-            'driver' => \Rapid\GatewayIR\Portals\InternalSandbox::class,
+            'driver' => Portals\InternalSandbox::class,
         ],
 
     ],
