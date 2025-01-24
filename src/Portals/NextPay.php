@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Rapid\GatewayIR\Contracts\GatewaySupportsRevert;
 use Rapid\GatewayIR\Data\PaymentVerifyResult;
-use Rapid\GatewayIR\Data\TransactionInitializeResult;
 use Rapid\GatewayIR\Handlers\PaymentHandler;
 use Rapid\GatewayIR\Payment\PaymentGatewayAbstract;
 use Rapid\GatewayIR\Portals\NextPay\NextPayGatewayException;
