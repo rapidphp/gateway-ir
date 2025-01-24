@@ -20,6 +20,12 @@ class NextPay extends PaymentGatewayAbstract implements GatewaySupportsRevert
 {
 
     protected const BASE_URL = 'https://nextpay.org';
+    protected const SUPPORTS_SANDBOX = false;
+
+    public static function make(string $key): static
+    {
+        return new static($key);
+    }
 
     /**
      * @inheritDoc

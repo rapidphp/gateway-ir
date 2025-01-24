@@ -106,7 +106,7 @@ class ZarinPal extends PaymentGatewayAbstract
             ->acceptJson()
             ->post($this->endPoint("pg/v4/payment/verify.json"), array_filter([
                 'merchant_id' => $this->key,
-                'amount' => Currency::to($transaction->amount, 'IRR'),
+                'amount' => $transaction->amount,
                 'authority' => $request->input('Authority'),
             ]));
 

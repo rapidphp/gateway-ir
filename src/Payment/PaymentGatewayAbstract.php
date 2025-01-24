@@ -20,6 +20,7 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
 
     protected const BASE_URL = '';
     protected const SANDBOX_BASE_URL = '';
+    protected const SUPPORTS_SANDBOX = true;
 
     /**
      * Gateway API key.
@@ -67,7 +68,7 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
      */
     protected function setSandbox(bool $sandbox): void
     {
-        if ($sandbox && static::SANDBOX_BASE_URL === '') {
+        if ($sandbox && !static::SUPPORTS_SANDBOX) {
             throw new \RuntimeException(sprintf('Portal [%s] is not supported sandbox', static::class));
         }
 
