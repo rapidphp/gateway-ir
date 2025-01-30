@@ -154,7 +154,7 @@ class PaymentFactory
             $name = 'secondary';
         }
 
-        $this->gatewayPrimary = $name;
+        $this->gatewaySecondary = $name;
 
         if (isset($gateway)) {
             $this->define($name, $gateway);
