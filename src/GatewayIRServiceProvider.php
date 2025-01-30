@@ -3,6 +3,7 @@
 namespace Rapid\GatewayIR;
 
 use Illuminate\Support\ServiceProvider;
+use Rapid\GatewayIR\Contracts\PaymentGateway;
 
 class GatewayIRServiceProvider extends ServiceProvider
 {
@@ -12,6 +13,7 @@ class GatewayIRServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerLang();
         $this->registerMigrations();
+        $this->registerGateways();
     }
 
     /**
