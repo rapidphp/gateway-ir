@@ -17,6 +17,8 @@ return [
         'prefix' => '/payment',
         'name' => 'gateway.result',
         'throttle' => '4,1',
+        'redirect' => '/redirect',
+        'redirect_name' => 'gateway.redirect',
     ],
 
     /*
@@ -123,6 +125,7 @@ return [
     */
 
     'views' => [
+        'redirect' => 'gateway-ir::redirect',
         'successful' => 'payment.successful',
         'cancelled' => 'payment.cancelled',
         'expired' => 'payment.expired',

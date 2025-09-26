@@ -14,6 +14,7 @@ class GatewayIRServiceProvider extends ServiceProvider
         $this->registerLang();
         $this->registerMigrations();
         $this->registerGateways();
+        $this->registerViews();
     }
 
     /**
@@ -79,4 +80,13 @@ class GatewayIRServiceProvider extends ServiceProvider
         }
     }
 
+    /**
+     * Register the views.
+     *
+     * @return void
+     */
+    public function registerViews(): void
+    {
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'gateway-ir');
+    }
 }
