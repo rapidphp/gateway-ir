@@ -144,7 +144,8 @@ abstract class PaymentGatewayAbstract implements PaymentGateway
             'description' => $description,
             'status' => TransactionStatuses::Pending,
             'handler' => is_string($handler) ? $handler : serialize($handler),
-            'gateway' => $this->getIDName()
+            'gateway' => $this->getIDName(),
+            'tracking_code' => strtoupper(bin2hex(random_bytes(4))) . '-' . (time() + rand(-1000, +1000)),
         ]);
     }
 

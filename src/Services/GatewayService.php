@@ -93,6 +93,7 @@ class GatewayService
             try {
                 $transaction->update([
                     'status' => TransactionStatuses::Success,
+                    'paid_at' => now(),
                 ]);
 
                 return $handlerSetup?->fireSuccess($result) ?? $this->render(config('gateway-ir.views.successful'));
@@ -200,6 +201,21 @@ class GatewayService
         }
 
         return $handler;
+    }
+
+    /**
+     * Get the transaction handler class, or null on errors.
+     *
+     * @param Model $record
+     * @return PaymentHandler|null
+     */
+    public function getTransactionHandler(Model $record): ?PaymentHandler
+    {
+        try {
+            return $this->exportHandler($record->handler);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /**

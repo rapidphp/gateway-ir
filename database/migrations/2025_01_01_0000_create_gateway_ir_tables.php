@@ -27,6 +27,8 @@ return new class extends Migration
             ]);
             $table->text('handler');
             $table->string('gateway');
+            $table->string('tracking_code', 50)->unique();
+            $table->timestamp('paid_at')->nullable();
             $table->timestamps();
         });
     }
