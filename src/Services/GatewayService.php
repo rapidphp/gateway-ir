@@ -58,6 +58,8 @@ class GatewayService
             try {
 
                 $result = $gateway->verify($transaction, $request);
+                $result->amount ??= $transaction->amount;
+                $result->record = $transaction;
 
             } catch (PaymentFailedException $failed) {
 
