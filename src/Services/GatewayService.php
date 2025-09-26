@@ -49,6 +49,7 @@ class GatewayService
             if ($handler) {
                 $prepare = new PaymentPrepare($gateway);
                 $prepare->amount = $transaction->amount;
+                $prepare->record = $transaction;
 
                 if (!$handlerSetup->fireValidate($prepare)) {
                     abort(403);
@@ -64,6 +65,7 @@ class GatewayService
             } catch (PaymentFailedException $failed) {
 
                 $data = new PaymentFailed($gateway);
+                $data->record = $transaction;
 
                 $response = $handlerSetup->fireFail($data);
                 $response ??= $this->render(config('gateway-ir.views.failed'));
@@ -82,6 +84,8 @@ class GatewayService
                 ]);
 
                 $data = new PaymentCancelledResult($gateway);
+                $data->record = $transaction;
+
                 return $handlerSetup->fireCancel($data) ?? $this->render(config('gateway-ir.views.cancelled'));
 
             }

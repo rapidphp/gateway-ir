@@ -3,6 +3,7 @@
 namespace Rapid\GatewayIR\Data;
 
 use Illuminate\Database\Eloquent\Model;
+use Rapid\GatewayIR\Models\Transaction;
 
 class PaymentPrepare extends Data
 {
@@ -12,4 +13,11 @@ class PaymentPrepare extends Data
      * @var int
      */
     public int $amount;
+
+    /**
+     * The transaction record.
+     *
+     * @var Model|Transaction
+     */
+    public Model $record;
 }
