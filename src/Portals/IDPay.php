@@ -44,7 +44,7 @@ class IDPay extends PaymentGatewayAbstract
             'currency' => $currency,
         ] = $meta;
 
-        $amount = Currency::from($amount, $currency ?? 'IRT');
+        $amount = Currency::convert($amount, $currency ?? 'IRR', 'IRR');
 
         $transaction = $this->createNewRecord($amount, $description, $handler);
 
@@ -56,7 +56,7 @@ class IDPay extends PaymentGatewayAbstract
                 ->withHeader('X-SANDBOX', '1')
                 ->post($this->endPoint("v1.1/payment"), array_filter([
                     'order_id' => $transaction->order_id,
-                    'amount' => Currency::to($amount, 'IRR'),
+                    'amount' => $amount,
                     'description' => $description,
                     'callback_url' => $this->getCallbackUrl($transaction),
                     'name' => $name,

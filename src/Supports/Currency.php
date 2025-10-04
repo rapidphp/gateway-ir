@@ -4,21 +4,16 @@ namespace Rapid\GatewayIR\Supports;
 
 class Currency
 {
-
-    public static function to(int $amountIRT, string $currency): int|float
+    public static function convert(int|float $amount, string $from, string $to): int|float
     {
-        return match (strtolower($currency)) {
-            'rial', 'irr'  => $amountIRT * 10,
-            'toman', 'irt' => $amountIRT,
+        $amount = match (strtolower($from)) {
+            'rial', 'irr'  => $amount,
+            'toman', 'irt' => $amount * 10,
+        };
+
+        return match (strtolower($to)) {
+            'rial', 'irr'  => $amount,
+            'toman', 'irt' => $amount / 10,
         };
     }
-
-    public static function from(int|float $amount, string $currency): int
-    {
-        return match (strtolower($currency)) {
-            'rial', 'irr'  => $amount / 10,
-            'toman', 'irt' => $amount,
-        };
-    }
-
 }

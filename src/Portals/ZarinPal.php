@@ -41,7 +41,7 @@ class ZarinPal extends PaymentGatewayAbstract
             'email' => $email,
         ] = $meta;
 
-        $amount = Currency::from($amount, $currency ?? 'IRT');
+        $amount = Currency::convert($amount, $currency ?? 'IRR', 'IRR');
 
         $transaction = $this->createNewRecord($amount, $description, $handler);
 
@@ -50,7 +50,7 @@ class ZarinPal extends PaymentGatewayAbstract
                 ->acceptJson()
                 ->post($this->endPoint("pg/v4/payment/request.json"), array_filter([
                     'merchant_id' => $this->key,
-                    'currency' => 'IRT',
+                    'currency' => 'IRR',
                     'amount' => $amount,
                     'description' => $description,
                     'callback_url' => $this->getCallbackUrl($transaction),

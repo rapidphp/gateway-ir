@@ -44,7 +44,7 @@ class NextPay extends PaymentGatewayAbstract implements GatewaySupportsRevert
             'allowedCard' => $allowedCard,
         ] = $meta;
 
-        $amount = Currency::from($amount, $currency ?? 'IRT');
+        $amount = Currency::convert($amount, $currency ?? 'IRR', 'IRR');
 
         $transaction = $this->createNewRecord($amount, $description, $handler);
 
@@ -54,7 +54,7 @@ class NextPay extends PaymentGatewayAbstract implements GatewaySupportsRevert
                 ->post($this->endPoint("nx/gateway/token"), array_filter([
                     'api_key' => $this->key,
                     'amount' => $amount,
-                    'currency' => 'IRT',
+                    'currency' => 'IRR',
                     'payer_desc' => $description,
                     'callback_uri' => $this->getCallbackUrl($transaction),
                     'order_id' => $transaction->order_id,
